@@ -22,34 +22,37 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-// GET user info.. do they exist? id would be fb id since its unique
+// GET ALL nodes of a given :node type
 router.get('/find/:node', UserController.findNodes);
 
-// GET user info.. do they exist? id would be fb id since its unique
-router.get('/user/:id/', UserController.findUser);
+// POST user info.. do they exist? id would be fb id since its unique
+router.post('/user/', UserController.findUser);
+// router.post('/user/:id/', UserController.findUser);
 
-// POST user info.. create DEPRECATED
+
+// DEPRECATED POST user info.. create
 // router.post('/user/:id/', UserController.createUser);
 
 // GET a single picture a user hasn't seen
-router.get('/user/:id/picture', PictureController.unseenByPerson);
+// router.get('/user/:id/picture', PictureController.unseenByPerson);
 //
 
 // GET a count of all pictures a user has seen
-router.get('/user/:id/picturecount', PictureController.unseenByPerson);
+// router.get('/user/:id/picturecount', PictureController.unseenByPerson);
 
 // // POST picture relationship. create. there's NO way to update a pic rel.
 // router.post('/user/:id/picture/:picid', UserController.createUser);
 
 
-// // POST matches of user. CREATE matches
-// router.post('/user/:id/creatematches', PictureController.findMatchesByUser);
+// GET NEW matches of user. ie: CREATE matches
+router.get('/user/:fbID/newmatches', UserController.findNewMatches);
+
+// GET existing matches of user AND UPDATE the matches
+router.get('/user/:id/matches', UserController.findExistingMatches);
 
 // // UPDATE matches (percentages) of user
 // router.post('/user/:id/updatematches', PictureController.findMatchesByUser);
 
-// // GET existing matches of user
-// router.post('/user/:id/matches', PictureController.findMatchesByUser);
 
 //
 
