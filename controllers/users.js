@@ -2,15 +2,50 @@ var User = require("../models/user");
 
 var UserController = {
   findUser: function(req, res, next) {
+    // send in all of the user info.. it's just a JSON body so yolo.
+    var info = res.req.body
+
     // req.params.id get it from url params
-    console.log("PARAMS", req.params.id.toString())
-    User.findUser(req.params.id.toString(), function(error, user) {
-        if(error) {
-        var err = new Error("Error retrieving user: " + error.message);
-        err.status = 500;
-        next(err);
+    // console.log("PARAMS", req.params.id.toString())
+
+    // FIND if user exists
+    User.findUser(info.fbID, function(error, user) {
+
+      // CREATE the user if error finding a user (user does NOT exist)
+      if(error) {
+        if (!info.age) {info.age = 18}
+        if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
+        if (!info.preferredLocationKM) {info.preferredLocationKM = 0}
+        if (!info.preferredAgeMin) {info.preferredAgeMin = 18}
+        if (!info.preferredAgeMax) {info.preferredAgeMax = 90}
+        if (!info.lat) {info.lat = 0}
+        if (!info.long) {info.long = 0}
+        if (!info.description) {info.description = "Hi, I'm"+info.name+"!"}
+        const date = Date()
+
+        User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, function(error, user) {
+
+          // if there's an error => wrong JSON body
+          if(error) {
+            var err = new Error("Error creating user, check JSON body format: " + error.message);
+            err.status = 500;
+            next(err);
+          } else {
+
+          // CREATE gender relationship if NO error
+          if (info.gender !== 'Male' || info.gender !== 'Female') {info.gender = 'None'}
+          if (!info.preferredGender) {info.preferredGender = 'Friends'}
+          User.createGenderRel(info.gender, info.preferredGender, date,  function(error, users) {
+            // if there's an error something wrong with gender formats
+            if(error) {
+              var err = new Error("Error creating gender relationship soo: " + error.message);
+              err.status = 500;
+              next(err);
+            }
+          })
+        }})
       } else {
-        res.json(user)
+        res.json(users)
       }
     });
   },

@@ -29,9 +29,9 @@ User.findUser = function(name, callback) {
 
 // this should happen after fb Oauth if user is NOT found.
 // should ever happen ONCE
-User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, dateJoined, dateLastLogin, description, callback) {
+User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description, callback) {
   session
-  .run('CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:dateJoined, dateLastLogin:dateLastLogin, description:description})
+  .run('CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description})
 
   .then(function(result){
     var userArr = [];
@@ -53,24 +53,25 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
   })
 }
 
-User.createGenderRel = function(id, genderArr, callback) {
-  console.log("NODE", node)
-  // var query = 'MATCH (n:'+node+') RETURN n'
-
+// CREATES persons gender AND their preferred Gender
+// future will have a loop that creates ALL gender relationships
+// this is just the basic
+User.createGenderRel = function(id, gender, preferredGender, date, callback) {
+  // not quite sure what all I really want to return..
   session
-  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) CREATE (n)-[m:GENDER {date: {date}}]->(per) RETURN p, m, per', {fbID: fbID, date:date})
+  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) MATCH (g:Gender {name: {gender}}) USING INDEX g:Gender(name) MATCH (pg:Gender {name: {preferredGender}}) USING INDEX pg:Gender(name) CREATE (n)-[m:ISGENDER {date: {date}}]->(g), (n)-[o:LOOKINGGENDER {date: {date}}]->(pg) RETURN n', {fbID: fbID, gender:gender, preferredGender: preferredGender, date:date})
 
   .then(function(result){
-      console.log("RESULT", result)
+      // console.log("RESULT", result)
 
-    var nodeArr = [];
-    result.records.forEach(function(record){
-      nodeArr.push({
-        id: record._fields[0].identity.low,
-        name: record._fields[0].properties.name
-      })
-    })
-    callback(null, nodeArr)
+    // var nodeArr = [];
+    // result.records.forEach(function(record){
+      // nodeArr.push({
+        // id: record._fields[0].identity.low,
+        const name = record._fields[0].properties.name
+      // })
+    // })
+    callback(null, name)
   })
   .catch(function(err){
     callback(err, undefined)
@@ -78,6 +79,7 @@ User.createGenderRel = function(id, genderArr, callback) {
   })
 }
 
+// Person, Picture, Gender
 User.findNodes = function(node, callback) {
   console.log("NODE", node)
   var query = 'MATCH (n:'+node+') RETURN n'

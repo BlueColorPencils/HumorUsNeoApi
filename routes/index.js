@@ -28,19 +28,31 @@ router.get('/find/:node', UserController.findNodes);
 // GET user info.. do they exist? id would be fb id since its unique
 router.get('/user/:id/', UserController.findUser);
 
-// POST user info.. create
-router.post('/user/:id/', UserController.createUser);
+// POST user info.. create DEPRECATED
+// router.post('/user/:id/', UserController.createUser);
 
 // GET a single picture a user hasn't seen
 router.get('/user/:id/picture', PictureController.unseenByPerson);
 //
-// // POST picture relationship. create
+
+// GET a count of all pictures a user has seen
+router.get('/user/:id/picturecount', PictureController.unseenByPerson);
+
+// // POST picture relationship. create. there's NO way to update a pic rel.
 // router.post('/user/:id/picture/:picid', UserController.createUser);
-//
-// // POST matches of user. create matches
+
+
+// // POST matches of user. CREATE matches
+// router.post('/user/:id/creatematches', PictureController.findMatchesByUser);
+
+// // UPDATE matches (percentages) of user
+// router.post('/user/:id/updatematches', PictureController.findMatchesByUser);
+
+// // GET existing matches of user
 // router.post('/user/:id/matches', PictureController.findMatchesByUser);
 
 //
+
 // // Given a sort column, return n customer records, offset by p records (this will be used to create "pages" of users)
 // // Sort columns are: name, registered_at, postal_code
 // // router.get('/users/sort/:query', UserController.subset);
