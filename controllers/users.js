@@ -63,39 +63,6 @@ var UserController = {
           else {
             res.json(users)
           }
-            // console.log("in create user ELSE", users)
-          // // CREATE gender relationship if NO error
-            // if (!info.gender) {
-            //   var gender = 'none'
-            // } else {
-            //   var gender = info.gender.toLowerCase()
-            //   if (gender !== 'male' || gender !== 'female') {
-            //     gender = 'none'
-            //   }
-            // }
-            //
-            // console.log("HELLO", gender)
-            // if (!info.preferredGender) {
-            //   var preferredGender = 'friends'
-            // } else {
-            //   var preferredGender = info.preferredGender.toLowerCase()
-            // }
-            // console.log("create user else", fbID, gender, preferredGender)
-            //
-            // User.createGenderRel(fbID, gender, preferredGender, function(error, user2) {
-            //   console.log("! after create gender", error)
-            //
-            // // if there's an error something wrong with gender formats
-            // if(error) {
-            //   console.log("so deep")
-            //   var err = new Error("Error creating gender relationship soo: " + error.message);
-            //   err.status = 500;
-            //   next(err);
-            // } else {
-            //   console.log(" gender done")
-            //   // res.json(users)
-            // }
-          // })
         })
       } else {
         console.log("WTF")
@@ -104,25 +71,6 @@ var UserController = {
       }
     });
   },
-
-  // createUser: function(req, res, next) {
-  //   var info = res.req.body
-  //
-  //   console.log("PARAMS", req.params.id.toString())
-  //   console.log("BODY????", res.req.body)
-  //
-  //   User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, info.dateJoined, info.dateLastLogin, info.gender, info.preferredGender, info.description, function(error, user) {
-  //     if(error) {
-  //       var err = new Error("Error retrieving user: " + error.message);
-  //       err.status = 500;
-  //       next(err);
-  //     } else {
-  //
-  //       //if it's successful, go ahead and make the gender association
-  //       res.json(user)
-  //     }
-  //   });
-  // },
 
   //DEPRECATED for MVP will be used when user settings is ENABLED.
   createGenderRel: function(req, res, next) {
