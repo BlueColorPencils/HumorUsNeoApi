@@ -64,9 +64,7 @@ User.findNewMatches = function(fbID, callback) {
         matchesArr.push({
           name: record._fields[0].properties.name,
           fbID: record._fields[0].properties.fbID,
-          // dateLastLogin: record._fields[0].properties.dateLastLogin,
           percentage: Math.round(record._fields[2]*100),
-          // description: record._fields[0].properties.description
         })
       })
       var err = null
@@ -85,11 +83,9 @@ User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
   .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (m:User {fbID: {fbID2}}) USING INDEX m:User(fbID) MERGE (n)-[:MATCHES {percentage:{percentage}, dateAdded:{dateAdded}, show:1}]->(m) RETURN n, m', {fbID:fbID, fbID2:matchObj.fbID, percentage:matchObj.percentage, dateAdded:dateAdded})
 
   .then(function(result){
-    console.log("in create new matches result")
     callback(null, undefined)
   })
   .catch(function(err){
-    console.log("in create new matches error", err)
     callback(err, undefined)
   })
 }
@@ -98,12 +94,10 @@ User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
 User.findExistingMatches = function(fbID, callback) {
   session
   // .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (n)-[l:MATCHES]->(p) RETURN p, l', {fbID:fbID})
-  .run('PROFILE MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (m)-[l:MATCHES]->(n) WITH n, l, m, sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as likes, sum(size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) as dislikes, sum(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))) as total      SET l.percentage = ((likes+dislikes)/(total*1.0))*100 RETURN n, l, total ORDER BY (total) DESC', {fbID:fbID})
+  .run('PROFILE MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (m)-[l:MATCHES]->(n) WITH n, l, m, sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as likes, sum(size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) as dislikes, sum(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))) as total      SET l.percentage = ((likes+dislikes)/(total*1.0))*100 RETURN n, l, total ORDER BY (l.percentage) DESC', {fbID:fbID})
   .then(function(result){
-    console.log("result", result)
     var matchesArr = [];
     result.records.forEach(function(record){
-      console.log("record", record)
       matchesArr.push({
         name: record._fields[0].properties.name,
         age: record._fields[0].properties.age,
@@ -118,7 +112,6 @@ User.findExistingMatches = function(fbID, callback) {
   })
   .catch(function(err){
     callback(err, undefined)
-    console.log(err)
   })
 }
 

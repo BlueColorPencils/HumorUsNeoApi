@@ -124,9 +124,14 @@ var UserController = {
 
   findExistingMatches: function(req, res, next) {
     User.findExistingMatches(req.params.fbID, function(error, matches) {
-        // There are NO new matches OR an error
-        if(error || matches.length === 0) {
-        var err = new Error("Error retrieving existing matches. 1. Check fbID 2. Are there any matches at all?? : " + error.message);
+      // There are NO new matches OR an error
+      if(error || matches.length === 0) {
+        if (error.message == "Cannot read property 'properties' of null") {
+          var err = new Error("No matches yet 😭 Keep swiping!")
+        }
+        else if (error.message == "Cannot read property 'message' of null") {
+          var err = new Error("Wrong fbID sent")
+        }
         err.status = 500;
         next(err);
       } else {
