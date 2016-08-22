@@ -44,55 +44,6 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
   })
 }
 
-//DEPRECATED MVP
-// CREATES persons gender AND their preferred Gender
-// future will have a loop that creates ALL gender relationships
-// this is just the basic
-// User.createGenderRel = function(fbID, gender, preferredGender, callback) {
-//   // not quite sure what all I really want to return..
-//   console.log("ARE YOU IN GENDER?????", fbID, gender, preferredGender)
-//   session
-//   // USING INDEX pg:Gender(name).. I need to create all of these indexes first
-//   .run('MATCH (n:User {fbID: {fbID}}) CREATE (n)-[m:ISGENDER]->(g:Gender {name: {gender} }), (n)-[o:WANTSGENDER]->(pg:Gender {name: {preferredGender} }) RETURN n', {fbID: fbID, gender:gender, preferredGender: preferredGender})
-//
-//   .then(function(result){
-//     console.log("in create Gender Rel", result)
-//     // console.log("2", result.records)
-//     // console.log("1", result.records[0]._fields[0].properties)
-//       let userInfo = result.records[0]._fields[0].properties
-//     callback(null, userInfo)
-//   })
-//   .catch(function(err){
-//     console.log("in create gender ERROR")
-//     callback(err, undefined)
-//     // console.log(err)
-//   })
-// }
-
-// Finds all of a given node.
-// Lets you check all users or all pictures, etc.
-// Person, Picture, Gender
-User.findNodes = function(node, callback) {
-  console.log("NODE", node)
-  var query = 'MATCH (n:'+node+') RETURN n'
-
-  session
-  .run(query)
-  .then(function(result){
-    var nodesArr = [];
-    result.records.forEach(function(record){
-      nodeArr.push({
-        id: record._fields[0].identity.low,
-        name: record._fields[0].properties.name
-      })
-    })
-    callback(null, nodesArr)
-  })
-  .catch(function(err){
-    callback(err, undefined)
-  })
-}
-
 
 // finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
@@ -110,9 +61,9 @@ User.findNewMatches = function(fbID, callback) {
         matchesArr.push({
           name: record._fields[0].properties.name,
           fbID: record._fields[0].properties.fbID,
-          dateLastLogin: record._fields[0].properties.dateLastLogin,
+          // dateLastLogin: record._fields[0].properties.dateLastLogin,
           percentage: Math.round(record._fields[2]*100),
-          description: record._fields[0].properties.description
+          // description: record._fields[0].properties.description
         })
       })
       matchesArr.unshift(matchesArr.length)
@@ -147,7 +98,9 @@ User.findExistingMatches = function(fbID, callback) {
     result.records.forEach(function(record){
       matchesArr.push({
         name: record._fields[0].properties.name,
+        age: record._fields[0].properties.age,
         fbID: record._fields[0].properties.fbID,
+        photo: record._fields[0].properties.photo,
         dateLastLogin: record._fields[0].properties.dateLastLogin,
         percentage: Math.round(record._fields[1].properties.percentage),
         description: record._fields[0].properties.description
@@ -160,6 +113,53 @@ User.findExistingMatches = function(fbID, callback) {
     console.log(err)
   })
 }
+
+
+// Finds all of a given node. ex: User, Picture, Gender
+User.findNodes = function(node, callback) {
+  console.log("NODE", node)
+  var query = 'MATCH (n:'+node+') RETURN n'
+
+  session
+  .run(query)
+  .then(function(result){
+    var nodesArr = [];
+    result.records.forEach(function(record){
+      nodesArr.push(record._fields[0].properties)
+    })
+    callback(null, nodesArr)
+  })
+  .catch(function(err){
+    callback(err, undefined)
+  })
+}
+
+//DEPRECATED MVP
+// CREATES persons gender AND their preferred Gender
+// future will have a loop that creates ALL gender relationships
+// this is just the basic
+// User.createGenderRel = function(fbID, gender, preferredGender, callback) {
+//   // not quite sure what all I really want to return..
+//   console.log("ARE YOU IN GENDER?????", fbID, gender, preferredGender)
+//   session
+//   // USING INDEX pg:Gender(name).. I need to create all of these indexes first
+//   .run('MATCH (n:User {fbID: {fbID}}) CREATE (n)-[m:ISGENDER]->(g:Gender {name: {gender} }), (n)-[o:WANTSGENDER]->(pg:Gender {name: {preferredGender} }) RETURN n', {fbID: fbID, gender:gender, preferredGender: preferredGender})
+//
+//   .then(function(result){
+//     console.log("in create Gender Rel", result)
+//     // console.log("2", result.records)
+//     // console.log("1", result.records[0]._fields[0].properties)
+//       let userInfo = result.records[0]._fields[0].properties
+//     callback(null, userInfo)
+//   })
+//   .catch(function(err){
+//     console.log("in create gender ERROR")
+//     callback(err, undefined)
+//     // console.log(err)
+//   })
+// }
+
+
 
 //
 // app.get('/', function(req,res) {

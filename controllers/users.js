@@ -95,28 +95,19 @@ var UserController = {
   },
 
   findExistingMatches: function(req, res, next) {
-    User.findExistingMatches(req.params.fbID, function(error, users) {
+    User.findExistingMatches(req.params.fbID, function(error, matches) {
         // There are NO new matches OR an error
-        if(error) {
-        var err = new Error("Error retrieving existing matches: " + error.message);
+        if(error || matches.length === 0) {
+        var err = new Error("Error retrieving existing matches. Check fbID: " + error.message);
         err.status = 500;
         next(err);
       } else {
-        res.json(users)
+        res.json(matches)
       }
     });
   },
 
   findNodes: function(req, res, next) {
-    // res.body.alllll sorts of info from user
-    // info.gender is an array []
-    // info.preferredGender is an array []
-
-    var info = res.req.body
-
-    // nodes: User, Picture, Gender
-
-    // console.log("BODY????", res.req.body)
     User.findNodes(req.params.node.toString(), function(error, user) {
       if(error) {
         var err = new Error("Error retrieving nodes: " + error.message);
@@ -128,8 +119,7 @@ var UserController = {
     });
   }
 
-
-  //DEPRECATED for MVP will be used when user settings is ENABLED.
+  // DEPRECATED STUFF BELOW for MVP will be used when user settings is ENABLED.
   // createGenderRel: function(req, res, next) {
   //   // req.params.id get it from url params
   //   console.log("PARAMS", req.params.id.toString())
