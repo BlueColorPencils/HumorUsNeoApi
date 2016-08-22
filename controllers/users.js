@@ -1,14 +1,11 @@
 var User = require("../models/user");
 
 var UserController = {
-  findUser: function(req, res, next) {
-    // send in all of the user info.. it's just a JSON body so yolo.
-    // console.log("before?", res.req.body)
+  findOrCreateUser: function(req, res, next) {
+    // send in all of the user info in JSON body.
+    // NEED TO FIGURE OUT ERROR RESPONSE IF SOMETHING GOES AWRY
     var info = res.req.body
     var fbID = info.fbID.toString()
-
-    // req.params.id get it from url params
-    // console.log("PARAMS", req.params.id.toString())
 
     // FIND if user exists
     User.findUser(fbID, function(error, user) {
@@ -22,12 +19,12 @@ var UserController = {
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
         if (!info.birthday) {info.birthday = 0}
         if (!info.preferredLocationKM) {info.preferredLocationKM = 0}
-        if (!info.preferredAgeMin) {info.preferredAgeMin = 18}
-        if (!info.preferredAgeMax) {info.preferredAgeMax = 90}
+        if (!info.preferredAgeMin) {info.preferredAgeMin = info.age}
+        if (!info.preferredAgeMax) {info.preferredAgeMax = 60}
         if (!info.lat) {info.lat = 0}
         if (!info.long) {info.long = 0}
         if (!info.description) {info.description = "Hi, I am "+info.name+"!"}
-        const date = Date()
+        const date = Date.now() // in seconds
 
         if (!info.gender) {
           var gender = 'none'

@@ -14,7 +14,7 @@ User.findUser = function(fbID, callback) {
   console.log("finnnnn user", fbID)
 
   session
-  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(name) RETURN n', {fbID: fbID})
+  .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
     // console.log("FIND USER", result.records[0]._fields[0].properties)
     let userInfo = result.records[0]._fields[0].properties;
@@ -38,7 +38,7 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
   // creates a new user with properties of fbID,  name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description.
   // also create a relationship to gender and preferredGender
   session
-  .run('CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}), (n)-[m:ISGENDER]->(g:Gender {name: {gender} }), (n)-[o:WANTSGENDER]->(pg:Gender {name: {preferredGender} }) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, gender:gender, preferredGender:preferredGender})
+  .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, gender:gender, preferredGender:preferredGender})
 
   .then(function(result){
 
@@ -60,26 +60,26 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
 // CREATES persons gender AND their preferred Gender
 // future will have a loop that creates ALL gender relationships
 // this is just the basic
-User.createGenderRel = function(fbID, gender, preferredGender, callback) {
-  // not quite sure what all I really want to return..
-  console.log("ARE YOU IN GENDER?????", fbID, gender, preferredGender)
-  session
-  // USING INDEX pg:Gender(name).. I need to create all of these indexes first
-  .run('MATCH (n:User {fbID: {fbID}}) CREATE (n)-[m:ISGENDER]->(g:Gender {name: {gender} }), (n)-[o:WANTSGENDER]->(pg:Gender {name: {preferredGender} }) RETURN n', {fbID: fbID, gender:gender, preferredGender: preferredGender})
-
-  .then(function(result){
-    console.log("in create Gender Rel", result)
-    // console.log("2", result.records)
-    // console.log("1", result.records[0]._fields[0].properties)
-      let userInfo = result.records[0]._fields[0].properties
-    callback(null, userInfo)
-  })
-  .catch(function(err){
-    console.log("in create gender ERROR")
-    callback(err, undefined)
-    // console.log(err)
-  })
-}
+// User.createGenderRel = function(fbID, gender, preferredGender, callback) {
+//   // not quite sure what all I really want to return..
+//   console.log("ARE YOU IN GENDER?????", fbID, gender, preferredGender)
+//   session
+//   // USING INDEX pg:Gender(name).. I need to create all of these indexes first
+//   .run('MATCH (n:User {fbID: {fbID}}) CREATE (n)-[m:ISGENDER]->(g:Gender {name: {gender} }), (n)-[o:WANTSGENDER]->(pg:Gender {name: {preferredGender} }) RETURN n', {fbID: fbID, gender:gender, preferredGender: preferredGender})
+//
+//   .then(function(result){
+//     console.log("in create Gender Rel", result)
+//     // console.log("2", result.records)
+//     // console.log("1", result.records[0]._fields[0].properties)
+//       let userInfo = result.records[0]._fields[0].properties
+//     callback(null, userInfo)
+//   })
+//   .catch(function(err){
+//     console.log("in create gender ERROR")
+//     callback(err, undefined)
+//     // console.log(err)
+//   })
+// }
 
 // Finds all of a given node.
 // Lets you check all users or all pictures, etc.
@@ -110,13 +110,13 @@ User.findNodes = function(node, callback) {
 }
 
 
+
+// finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
-  // console.log("NODE", node)
-  // var query = 'MATCH (n:'+node+') RETURN n'
 
   //change PERSON BACK TO USER AND NAME TO FBID
   session
-  .run('MATCH (m:Person {name: {fbID}}) OPTIONAL MATCH (n:Person) WHERE (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n)  RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) OPTIONAL MATCH (n:User) WHERE NOT (n)<-[:MATCH]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
     if (result.records[0]._fields[0] == null) {
@@ -152,7 +152,7 @@ User.findNewMatches = function(fbID, callback) {
 //
 //
 //
-// MATCH (m:Person {name: "Ann"})
+// MATCH (m:User {name: "Ann"})
 // OPTIONAL MATCH (n:Person)
 // WHERE (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) AND NOT (n)<-[:MATCH]-(m)
 // RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n))+size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n)))/(size((m)-[]->()<-[]-(n))*1.0))*100 as total
