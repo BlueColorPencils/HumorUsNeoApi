@@ -37,7 +37,7 @@ var PicController = {
   },
 
   createPictureNode: function(req, res, next) {
-    //'/pictures'
+    //'/picture'
     var info = res.req.body
     var dateAdded = Date.now()
 

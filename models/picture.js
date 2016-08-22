@@ -37,7 +37,6 @@ Pic.createPictureNode = function(imgurID, title, name, description, link, dateAd
     callback(null, result.records[0]._fields[0].properties)
   })
   .catch(function(err){
-    console.log("IN the create picture node error", err)
     callback(err, undefined)
   })
 }
@@ -50,8 +49,6 @@ Pic.createPictureRel =  function(fbID, imgurID, relationship, dateAdded, callbac
   session
   .run(query)
   .then(function(result){
-    console.log("create pic result", result)
-    // callback(null, result.records[0]._fields[0].properties)
     if (result.records.length == 0) {
       console.log("record length is 0")
       callback("Check fbID or ImgurID. Can't find it in db", undefined)
@@ -60,7 +57,6 @@ Pic.createPictureRel =  function(fbID, imgurID, relationship, dateAdded, callbac
     }
   })
   .catch(function(err){
-    console.log("IN the create picture error", err)
     callback(err, undefined)
   })
 }

@@ -9,18 +9,13 @@ var User = function(user) {
 };
 
 User.findUser = function(fbID, callback) {
-  console.log("finnnnn user", fbID)
-
   session
   .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
     let userInfo = result.records[0]._fields[0].properties;
-    console.log("in find user .then")
-    console.log(result.records[0]._fields[0].labels)
     callback(null, userInfo)
   })
   .catch(function(err){
-    console.log("in find user errorrrr")
     callback(err, undefined)
   })
 }
@@ -39,7 +34,6 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
     callback(null, userInfos)
   })
   .catch(function(err){
-    console.log("in the createuser error")
     callback(err, undefined)
   })
 }
@@ -52,13 +46,11 @@ User.findNewMatches = function(fbID, callback) {
   .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
-    // console.log("results", result)
     if (result.records[0]._fields[0] == null) {
-      // console.log("null")
-      var matchesArr = null
-      var err = "Could not find new matches"
+      const matchesArr = null
+      const err = "Could not find new matches"
     } else {
-      var matchesArr = [];
+      const matchesArr = [];
       result.records.forEach(function(record){
         // console.log("fields", record._fields)
         matchesArr.push({
@@ -67,7 +59,7 @@ User.findNewMatches = function(fbID, callback) {
           percentage: Math.round(record._fields[2]*100),
         })
       })
-      var err = null
+      const err = null
       // matchesArr.unshift(matchesArr.length)
     }
     callback(err, matchesArr)
@@ -78,10 +70,8 @@ User.findNewMatches = function(fbID, callback) {
 }
 
 User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
-  console.log("HELLO?????")
   session
   .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (m:User {fbID: {fbID2}}) USING INDEX m:User(fbID) MERGE (n)-[:MATCHES {percentage:{percentage}, dateAdded:{dateAdded}, show:1}]->(m) RETURN n, m', {fbID:fbID, fbID2:matchObj.fbID, percentage:matchObj.percentage, dateAdded:dateAdded})
-
   .then(function(result){
     callback(null, undefined)
   })
@@ -89,7 +79,6 @@ User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
     callback(err, undefined)
   })
 }
-
 
 User.findExistingMatches = function(fbID, callback) {
   session
@@ -118,9 +107,7 @@ User.findExistingMatches = function(fbID, callback) {
 
 // Finds all of a given node. ex: User, Picture, Gender
 User.findNodes = function(node, callback) {
-  console.log("NODE", node)
   var query = 'MATCH (n:'+node+') RETURN n'
-
   session
   .run(query)
   .then(function(result){
