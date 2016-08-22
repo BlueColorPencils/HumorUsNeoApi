@@ -1,6 +1,19 @@
 var User = require("../models/user");
 
 var UserController = {
+  findUser: function(req, res, next) {
+    console.log("params", req.params.fbID.toString())
+    User.findUser(req.params.fbID.toString(), function(error, user) {
+        if(error) {
+        var err = new Error("Error retrieving user: " + error.message);
+        err.status = 500;
+        next(err);
+      } else {
+        res.json(user)
+      }
+    });
+  },
+
   findOrCreateUser: function(req, res, next) {
     // send in all of the user info in JSON body.
     // NEED TO FIGURE OUT ERROR RESPONSE IF SOMETHING GOES AWRY
@@ -25,15 +38,14 @@ var UserController = {
         if (!info.long) {info.long = 0}
         if (!info.description) {info.description = "Hi, I am "+info.name+"!"}
         const date = Date.now() // in seconds
+        var gender = info.gender.toLowerCase()
 
         if (!info.gender) {
-          var gender = 'none'
-        } else {
-          var gender = info.gender.toLowerCase()
-          if (gender !== 'male' || gender !== 'female') {
-            gender = 'none'
-          }
+          gender = 'none'
+        } else if ((gender !== 'male') && (gender !== 'female')) {
+          gender = 'none'
         }
+
 
         if (!info.preferredGender) {
           var preferredGender = 'friends'

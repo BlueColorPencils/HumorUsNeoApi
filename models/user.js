@@ -8,8 +8,6 @@ var User = function(user) {
   this.id = user;
 };
 
-//gonna have to change all of the Person to User!!!!
-
 User.findUser = function(fbID, callback) {
   console.log("finnnnn user", fbID)
 
@@ -26,7 +24,6 @@ User.findUser = function(fbID, callback) {
     console.log("in find user errorrrr")
     callback(err, undefined)
   })
-
 }
 
 // this should ONLY happen AFTER fb Oauth IF user is NOT found.
@@ -37,6 +34,7 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
 
   // creates a new user with properties of fbID,  name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description.
   // also create a relationship to gender and preferredGender
+  console.log("in here", gender)
   session
   .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, gender:gender, preferredGender:preferredGender})
 
@@ -114,7 +112,6 @@ User.findNodes = function(node, callback) {
 // finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
 
-  //change PERSON BACK TO USER AND NAME TO FBID
   session
   .run('MATCH (m:User {fbID: {fbID}}) OPTIONAL MATCH (n:User) WHERE NOT (n)<-[:MATCH]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 

@@ -6,10 +6,9 @@ var PicController = {
     var fbID = req.params.fbID
 
     Pic.findUnseenPictures(fbID, function(error, picture) {
-      console.log("completed find unseen pics")
-        // if error receiving picture
-        if(error) {
-        var err = new Error("Error retrieving picture:\n" + error.message);
+      // if error receiving picture
+      if(error) {
+        var err = new Error("Error retrieving a picture:\n" + error.message);
         err.status = 500;
         next(err);
       } else {
@@ -18,7 +17,6 @@ var PicController = {
     });
   },
 
-
   createPictureNode: function(req, res, next) {
     //'/pictures'
     var info = res.req.body
@@ -26,10 +24,9 @@ var PicController = {
 
     if (Object.keys(info).length !== 0) {
       Pic.createPictureNode(info.imgurID, info.title, info.name, info.description, info.link, dateAdded, info.type, function(error, picture) {
-
         // if error receiving picture
         if(error) {
-          var err = new Error("Error retrieving picture: " + error.fields[0].message);
+          var err = new Error("Error creating picture node: " + error.fields[0].message);
           err.status = 500;
           next(err);
         } else {
@@ -39,7 +36,29 @@ var PicController = {
     } else {
       res.json("ERROR: NO PICTURE CREATED. Check the JSON format, did you send anything?")
     }
+  },
+
+  createPictureRel: function(req, res, next) {
+    // '/picture/relationship'
+    var info = res.req.body
+    var dateAdded = Date.now()
+    if (info.relationship.toUpperCase() == 'LIKES' || info.relationship.toUpperCase() == 'DISLIKES') {
+      Pic.createPictureRel(info.fbID, info.imgurID, info.relationship, dateAdded, function(error, picture) {
+        // if error receiving picture
+        if(error) {
+          var err = new Error("Error creating picture relationship to user:" + error);
+          err.status = 500;
+          next(err);
+        } else {
+          res.json(picture)
+        }
+      });
+    } else {
+      // err.status = 500;
+      res.json("Incorrect relationship given. Check JSON")
+    }
   }
+
   // //
   // createPictureNodes: function(req, res, next) {
   //   //'/pictures'
