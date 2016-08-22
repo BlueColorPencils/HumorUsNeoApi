@@ -2,18 +2,37 @@ var Pic = require("../models/picture");
 
 var PicController = {
   findUnseenPictures: function(req, res, next) {
-    // '/user/:fbID/pictures'   req.params.id
+    // '/picture/:fbID/unseen'
     var fbID = req.params.fbID
 
     Pic.findUnseenPictures(fbID, function(error, picture) {
       // if error receiving picture
       // ADD FUNCTIONALITY TO ADD MORE PICS FROM IMGUR
       if(error) {
-        var err = new Error("Error retrieving a picture:\n" + error.message);
+        var err = new Error("Error retrieving unseen pictures:\n" + error.message);
         err.status = 500;
         next(err);
       } else {
         res.json(picture)
+      }
+    });
+  },
+
+
+  findSeenPictures: function(req, res, next) {
+    // '/picture/:fbID/seen'
+    var fbID = req.params.fbID
+
+    Pic.findSeenPictures(fbID, function(error, picturecount) {
+      if(error) {
+        var err = new Error("Error retrieving seen picture:\n" + error.message);
+        err.status = 500;
+        next(err);
+      } else if (picturecount % 50 == 0) {
+        console.log("findseenpictures")
+        res.json("yo")
+      } else {
+        res.json(picturecount)
       }
     });
   },

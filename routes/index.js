@@ -15,23 +15,25 @@ router.get('/user/:fbID/', UserController.findUser);
 // POST user info.. FIND or CREATE user (happens AFTER FB OAUTH)
 router.post('/user/', UserController.findOrCreateUser);
 
-// GET a single picture a user hasn't seen
-router.get('/user/:fbID/pictures', PictureController.findUnseenPictures);
-
-// POST picture info.. CREATE PICTURE
-router.post('/picture/', PictureController.createPictureNode);
-
-// POST/ CREATE picture relationship to user. currently NO way to update rel.
-router.post('/picture/relationship', PictureController.createPictureRel);
-
-// GET a count of all pictures a user has seen
-// router.get('/user/:id/picturecount', PictureController.unseenByPerson);
-
 // GET NEW matches of user. ie: CREATE matches
 router.get('/user/:fbID/newmatches', UserController.findNewMatches);
 
 // GET existing matches of user AND UPDATE the matches
 router.get('/user/:fbID/matches', UserController.findExistingMatches);
+
+
+// POST/ CREATE picture relationship to user. currently NO way to update rel.
+router.post('/picture/relationship', PictureController.createPictureRel);
+
+// POST picture info.. CREATE PICTURE
+router.post('/picture/', PictureController.createPictureNode);
+
+// GET a single picture a user hasn't seen
+router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures);
+
+// GET a count of all pictures a user has seen
+router.get('/picture/:fbID/seen', PictureController.findSeenPictures);
+
 
 // GET ALL nodes of a given :node type
 router.get('/find/:node', UserController.findNodes);

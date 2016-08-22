@@ -10,12 +10,23 @@ var Pic = function(pic) {
 
 Pic.findUnseenPictures = function (fbID, callback) {
   session
-  .run('MATCH (n:User {fbID:{fbID}}) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p LIMIT 1', {fbID: fbID})
+  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p LIMIT 1', {fbID: fbID})
   .then(function(result){
     callback(null, result.records[0]._fields[0].properties)
   })
   .catch(function(err){
     console.log("ERROR", err)
+    callback(err, undefined)
+  })
+}
+
+Pic.findSeenPictures = function (fbID, callback) {
+  session
+  .run('PROFILE MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) RETURN n.name, size((n)-[:LIKES|:DISLIKES]->()) as count', {fbID: fbID})
+  .then(function(result){
+    callback(null, result.records[0]._fields[1].low)
+  })
+  .catch(function(err){
     callback(err, undefined)
   })
 }
