@@ -21,7 +21,7 @@ router.get('/user/:fbID/', UserController.findUser);
 router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
 
 // GET NEW matches of user. ie: CREATE matches
-router.get('/user/:fbID/newmatches', UserController.findNewMatches);
+router.get('/user/:fbID/newmatches', UserController.findNewMatches, UserController.createNewMatches);
 
 // GET existing matches of user AND UPDATE the matches
 router.get('/user/:fbID/matches', UserController.findExistingMatches);

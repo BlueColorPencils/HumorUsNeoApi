@@ -1,4 +1,6 @@
 var User = require("../models/user");
+var async = require("async");
+
 
 var UserController = {
   findUser: function(req, res, next) {
@@ -61,40 +63,61 @@ var UserController = {
         }
         req.information = info
         next()
+
       } else {
         res.json(user)
       }
     });
   },
 
+  createNewMatches: function(req, res, next) {
+    const matchesArr = req.query
+    const date = Date.now() // in seconds
+
+    // I love you async package. <3
+    async.each(matchesArr, function(info, callback) {
+      User.createNewMatches(req.fbID, info, date, function(error, match) {
+        // error with my query
+        if(error) {
+          let err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
+          err.status = 500;
+          // next(err)
+          return callback(err)
+        }
+          callback()
+        })
+      }, function(error) {
+        if (error) {
+          err.status = 500;
+        } else {
+          res.json({newmatches: matchesArr.length})
+        }
+      }
+    )
+  },
+
+
   // THIS SHOULD BE TRIGGERED AFTER USER HAS SEEN batches of 50 pictures
+
   findNewMatches: function(req, res, next) {
-    var fbID = req.params.fbID.toString()
+    const fbID = req.params.fbID.toString()
 
     User.findNewMatches(fbID, function(error, matches) {
       // There are NO new matches...
       if(error || matches === null) {
-        var err = new Error("No new matches (also double check fbID of params): " + error.message);
-        err.status = 500;
-        next(err);
-      } else {
-
-        const date = Date.now() // in seconds
-        // CREATE matches from results
-        for (var i = 1; i < matches.length; i++) {
-          
-          User.createNewMatches(fbID, matches[i], date, function(error, match) {
-            // There are NO new matches...
-            if(error) {
-              var err = new Error("Error creating new matches: " + error.message);
-              err.status = 500;
-              next(err)
-            } else {
-              next()
-            }
-          });
+        if (error == "TypeError: Cannot read property '_fields' of undefined") {
+          let err = new Error("Incorrect fbID");
+          err.status = 500;
+          next(err);
+        } else {
+          let err = new Error("No new matches");
+          err.status = 500;
+          next(err);
         }
-        res.json(matches)
+      } else {
+        req.query = matches
+        req.fbID = fbID
+        next()
       }
     });
   },

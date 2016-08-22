@@ -49,15 +49,18 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
 User.findNewMatches = function(fbID, callback) {
 
   session
-  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)<-[:MATCHES]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
-    console.log("results", result)
+    // console.log("results", result)
     if (result.records[0]._fields[0] == null) {
+      // console.log("null")
       var matchesArr = null
+      var err = "Could not find new matches"
     } else {
       var matchesArr = [];
       result.records.forEach(function(record){
+        // console.log("fields", record._fields)
         matchesArr.push({
           name: record._fields[0].properties.name,
           fbID: record._fields[0].properties.fbID,
@@ -66,9 +69,10 @@ User.findNewMatches = function(fbID, callback) {
           // description: record._fields[0].properties.description
         })
       })
-      matchesArr.unshift(matchesArr.length)
+      var err = null
+      // matchesArr.unshift(matchesArr.length)
     }
-    callback(null, matchesArr)
+    callback(err, matchesArr)
   })
   .catch(function(err){
     callback(err, undefined)
@@ -76,6 +80,7 @@ User.findNewMatches = function(fbID, callback) {
 }
 
 User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
+  console.log("HELLO?????")
   session
   .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (m:User {fbID: {fbID2}}) USING INDEX m:User(fbID) MERGE (n)-[:MATCHES {percentage:{percentage}, dateAdded:{dateAdded}, show:1}]->(m) RETURN n, m', {fbID:fbID, fbID2:matchObj.fbID, percentage:matchObj.percentage, dateAdded:dateAdded})
 
