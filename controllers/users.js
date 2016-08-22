@@ -98,7 +98,7 @@ var UserController = {
     User.findExistingMatches(req.params.fbID, function(error, matches) {
         // There are NO new matches OR an error
         if(error || matches.length === 0) {
-        var err = new Error("Error retrieving existing matches. Check fbID: " + error.message);
+        var err = new Error("Error retrieving existing matches. 1. Check fbID 2. Are there any matches at all?? : " + error.message);
         err.status = 500;
         next(err);
       } else {

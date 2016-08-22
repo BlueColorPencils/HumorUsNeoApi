@@ -49,7 +49,7 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
 User.findNewMatches = function(fbID, callback) {
 
   session
-  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (n)<-[:MATCHES]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)<-[:MATCHES]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
     console.log("results", result)
@@ -92,10 +92,13 @@ User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
 
 User.findExistingMatches = function(fbID, callback) {
   session
-  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (n)-[l:MATCHES]->(p) RETURN p, l', {fbID:fbID})
+  // .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (n)-[l:MATCHES]->(p) RETURN p, l', {fbID:fbID})
+  .run('PROFILE MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (m)-[l:MATCHES]->(n) WITH n, l, m, sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as likes, sum(size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) as dislikes, sum(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))) as total      SET l.percentage = ((likes+dislikes)/(total*1.0))*100 RETURN n, l, total ORDER BY (total) DESC', {fbID:fbID})
   .then(function(result){
+    console.log("result", result)
     var matchesArr = [];
     result.records.forEach(function(record){
+      console.log("record", record)
       matchesArr.push({
         name: record._fields[0].properties.name,
         age: record._fields[0].properties.age,

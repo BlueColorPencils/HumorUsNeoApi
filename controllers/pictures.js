@@ -18,7 +18,6 @@ var PicController = {
     });
   },
 
-
   findSeenPictures: function(req, res, next) {
     // '/picture/:fbID/seen'
     var fbID = req.params.fbID
@@ -74,7 +73,6 @@ var PicController = {
         }
       });
     } else {
-      // err.status = 500;
       res.json("Incorrect relationship given. Check JSON")
     }
   }

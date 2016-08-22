@@ -15,7 +15,6 @@ Pic.findUnseenPictures = function (fbID, callback) {
     callback(null, result.records[0]._fields[0].properties)
   })
   .catch(function(err){
-    console.log("ERROR", err)
     callback(err, undefined)
   })
 }
