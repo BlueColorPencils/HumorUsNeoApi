@@ -31,7 +31,6 @@ app.use(function(req, res, next) {
 });
 
 
-//
 // // catch 500 and forward to error handler
 // app.use(function(req, res, next) {
 //   var err = new Error('Not Found');
@@ -42,8 +41,8 @@ app.use(function(req, res, next) {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-  res.status(err.status || 500).json(error: ____);
-}
+  res.status(err.status || 500).json({error: err.message});
+})
 
 
 

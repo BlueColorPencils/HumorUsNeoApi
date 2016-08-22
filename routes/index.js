@@ -9,11 +9,16 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+// router.get('/imgur', function(req, res, next) {
+//   res.redirect(UserController.findUser)
+// });
+
 // FIND user info ONLY
 router.get('/user/:fbID/', UserController.findUser);
 
 // POST user info.. FIND or CREATE user (happens AFTER FB OAUTH)
-router.post('/user/', UserController.findOrCreateUser);
+// router.post('/user/', UserController.findOrCreateUser);
+router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
 
 // GET NEW matches of user. ie: CREATE matches
 router.get('/user/:fbID/newmatches', UserController.findNewMatches);

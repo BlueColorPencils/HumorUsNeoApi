@@ -14,17 +14,33 @@ var UserController = {
     });
   },
 
+  createUser: function(req, res, next) {
+    const info = req.information
+    const date = Date.now() // in seconds
+
+    User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.gender, info.preferredGender, function(error, users) {
+      // if there's an error => wrong JSON body
+      if(error) {
+        var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
+        err.status = 500;
+        next(err);
+      }
+      else {
+        res.json(users)
+      }
+    })
+  },
+
   findOrCreateUser: function(req, res, next) {
     // send in all of the user info in JSON body.
     // NEED TO FIGURE OUT ERROR RESPONSE IF SOMETHING GOES AWRY
     var info = res.req.body
-    var fbID = info.fbID.toString()
+    info.fbID = info.fbID.toString()
     // FIND if user exists
 
-    User.findUser(fbID, function(error, user) {
+    User.findUser(info.fbID, function(error, user) {
       // CREATE the user if error finding a user (user does NOT exist)
       if(error) {
-        const date = Date.now() // in seconds
         var gender = info.gender.toLowerCase()
         if (!info.age) {info.age = 18}
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
@@ -35,28 +51,16 @@ var UserController = {
         if (!info.lat) {info.lat = 0}
         if (!info.long) {info.long = 0}
         if (!info.description) {info.description = "Hi, I am "+info.name+"!"}
-        if (!info.gender) {
-          gender = 'none'
-        } else if ((gender !== 'male') && (gender !== 'female')) {
-          gender = 'none'
+        if (!info.gender || ((gender !== 'male') && (gender !== 'female')) ) {
+          info.gender = 'none'
         }
         if (!info.preferredGender) {
-          var preferredGender = 'friends'
+          info.preferredGender = 'friends'
         } else {
-          var preferredGender = info.preferredGender.toLowerCase()
+          info.preferredGender = info.preferredGender.toLowerCase()
         }
-
-        User.createUser(fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, gender, preferredGender, function(error, users) {
-          // if there's an error => wrong JSON body
-          if(error) {
-            var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
-            err.status = 500;
-            next(err);
-          }
-          else {
-            res.json(users)
-          }
-        })
+        req.information = info
+        next()
       } else {
         res.json(user)
       }
@@ -78,6 +82,7 @@ var UserController = {
         const date = Date.now() // in seconds
         // CREATE matches from results
         for (var i = 1; i < matches.length; i++) {
+          
           User.createNewMatches(fbID, matches[i], date, function(error, match) {
             // There are NO new matches...
             if(error) {
