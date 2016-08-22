@@ -31,6 +31,22 @@ app.use(function(req, res, next) {
 });
 
 
+//
+// // catch 500 and forward to error handler
+// app.use(function(req, res, next) {
+//   var err = new Error('Not Found');
+//   err.status = 500;
+//   next(err);
+// });
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500).json(error: ____);
+}
+
+
+
 app.listen(3000);
 console.log('Server started on port 3000');
 
