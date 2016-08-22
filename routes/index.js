@@ -21,21 +21,21 @@ router.get('/user/:fbID/pictures', PictureController.findUnseenPictures);
 // POST picture info.. CREATE PICTURE
 router.post('/picture/', PictureController.createPictureNode);
 
-// GET ALL nodes of a given :node type
-router.get('/find/:node', UserController.findNodes);
-
+// POST/ CREATE picture relationship to user. currently NO way to update rel.
+router.post('/picture/relationship', PictureController.createPictureRel);
 
 // GET a count of all pictures a user has seen
 // router.get('/user/:id/picturecount', PictureController.unseenByPerson);
-
-// POST/ CREATE picture relationship to user. currently NO way to update rel.
-router.post('/picture/relationship', PictureController.createPictureRel);
 
 // GET NEW matches of user. ie: CREATE matches
 router.get('/user/:fbID/newmatches', UserController.findNewMatches);
 
 // GET existing matches of user AND UPDATE the matches
 router.get('/user/:fbID/matches', UserController.findExistingMatches);
+
+// GET ALL nodes of a given :node type
+router.get('/find/:node', UserController.findNodes);
+
 
 // // UPDATE matches (percentages) of user
 // router.post('/user/:id/updatematches', PictureController.findMatchesByUser);

@@ -14,7 +14,6 @@ User.findUser = function(fbID, callback) {
   session
   .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
-    // console.log("FIND USER", result.records[0]._fields[0].properties)
     let userInfo = result.records[0]._fields[0].properties;
     console.log("in find user .then")
     console.log(result.records[0]._fields[0].labels)
@@ -30,21 +29,12 @@ User.findUser = function(fbID, callback) {
 // should ever happen ONCE!!!!!!!!!
 User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description, gender, preferredGender, callback) {
 
-  // console.log("model", fbID, name, birthday, age)
-
-  // creates a new user with properties of fbID,  name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description.
-  // also create a relationship to gender and preferredGender
-  console.log("in here", gender)
+  // CREATES a new user with properties
+  // CREATES a relationship to gender and preferredGender
   session
   .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, gender:gender, preferredGender:preferredGender})
 
   .then(function(result){
-
-    // console.log("RESULT duuuuude", result)
-    // console.log("HELLO?", result);
-    console.log("in the createuser .then")
-    console.log(result.records[0]._fields[0].properties)
-    console.log(result.records[0])
     let userInfos = result.records[0]._fields[0].properties;
     callback(null, userInfos)
   })
@@ -88,10 +78,7 @@ User.findNodes = function(node, callback) {
 
   session
   .run(query)
-
   .then(function(result){
-      console.log("RESULT", result)
-
     var nodesArr = [];
     result.records.forEach(function(record){
       nodeArr.push({
@@ -103,37 +90,69 @@ User.findNodes = function(node, callback) {
   })
   .catch(function(err){
     callback(err, undefined)
-    console.log(err)
   })
 }
-
 
 
 // finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
 
   session
-  .run('MATCH (m:User {fbID: {fbID}}) OPTIONAL MATCH (n:User) WHERE NOT (n)<-[:MATCH]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (n)<-[:MATCHES]-(m) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[]->()<-[]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
+    console.log("results", result)
     if (result.records[0]._fields[0] == null) {
       var matchesArr = null
     } else {
       var matchesArr = [];
-
       result.records.forEach(function(record){
-        console.log("keys", record.keys)
-        console.log("fields", record._fields)
-        console.log("fieldLookup", record._fields)
-
         matchesArr.push({
-          // fbID: record._fields[0].identity.low,
-          all: record,
           name: record._fields[0].properties.name,
-          percentage: Math.round(record._fields[2]*100)
+          fbID: record._fields[0].properties.fbID,
+          dateLastLogin: record._fields[0].properties.dateLastLogin,
+          percentage: Math.round(record._fields[2]*100),
+          description: record._fields[0].properties.description
         })
       })
+      matchesArr.unshift(matchesArr.length)
     }
+    callback(null, matchesArr)
+  })
+  .catch(function(err){
+    callback(err, undefined)
+  })
+}
+
+User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
+  session
+  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (m:User {fbID: {fbID2}}) USING INDEX m:User(fbID) MERGE (n)-[:MATCHES {percentage:{percentage}, dateAdded:{dateAdded}, show:1}]->(m) RETURN n, m', {fbID:fbID, fbID2:matchObj.fbID, percentage:matchObj.percentage, dateAdded:dateAdded})
+
+  .then(function(result){
+    console.log("in create new matches result")
+    callback(null, undefined)
+  })
+  .catch(function(err){
+    console.log("in create new matches error", err)
+    callback(err, undefined)
+  })
+}
+
+
+User.findExistingMatches = function(fbID, callback) {
+  session
+  .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (n)-[l:MATCHES]->(p) RETURN p, l', {fbID:fbID})
+  .then(function(result){
+    var matchesArr = [];
+    result.records.forEach(function(record){
+      matchesArr.push({
+        name: record._fields[0].properties.name,
+        fbID: record._fields[0].properties.fbID,
+        dateLastLogin: record._fields[0].properties.dateLastLogin,
+        percentage: Math.round(record._fields[1].properties.percentage),
+        description: record._fields[0].properties.description
+      })
+    })
     callback(null, matchesArr)
   })
   .catch(function(err){
@@ -141,63 +160,6 @@ User.findNewMatches = function(fbID, callback) {
     console.log(err)
   })
 }
-// MATCH (m:User {fbID: {fbID}})
-// OPTIONAL MATCH (n:User)
-// WHERE (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) AND NOT (n)<-[:MATCH]-(m)
-// RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n))+size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n)))/(size((m)-[]->()<-[]-(n))*1.0))*100 as total
-// ORDER BY (total) DESC LIMIT 5
-//
-//
-//
-// MATCH (m:User {name: "Ann"})
-// OPTIONAL MATCH (n:Person)
-// WHERE (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) AND NOT (n)<-[:MATCH]-(m)
-// RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n))+size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n)))/(size((m)-[]->()<-[]-(n))*1.0))*100 as total
-// ORDER BY (total) DESC
-
-
-
-User.findExistingMatches = function(node, callback) {
-  console.log("NODE", node)
-  var query = 'MATCH (n:'+node+') RETURN n'
-
-  session
-  .run(query)
-
-  .then(function(result){
-      console.log("RESULT", result)
-
-    var nodeArr = [];
-    result.records.forEach(function(record){
-      nodeArr.push({
-        id: record._fields[0].identity.low,
-        name: record._fields[0].properties.name
-      })
-    })
-    callback(null, nodeArr)
-  })
-  .catch(function(err){
-    callback(err, undefined)
-    console.log(err)
-  })
-}
-//   .run("MATCH (n:Person {name: 'Ann' }) RETURN n")
-//   // .run('MATCH (n:Person {name: {name} }) RETURN n', {name: name})
-//
-//   .then(function(result){
-//     var userInfo = result.records
-//       // console.log(record._fields[0].properties);
-//       // console.log(record._fields[0].identity.low);
-//       console.log(record._fields);
-//       console.log("RESULTS????");
-//       callback(null, userInfo)
-//   })
-//   .catch(function(err){
-//     console.log("ERROR???")
-//     console.log(err)
-//     callback(err, undefined)
-//   })
-// }
 
 //
 // app.get('/', function(req,res) {

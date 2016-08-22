@@ -7,6 +7,7 @@ var PicController = {
 
     Pic.findUnseenPictures(fbID, function(error, picture) {
       // if error receiving picture
+      // ADD FUNCTIONALITY TO ADD MORE PICS FROM IMGUR
       if(error) {
         var err = new Error("Error retrieving a picture:\n" + error.message);
         err.status = 500;
