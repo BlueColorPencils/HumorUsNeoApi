@@ -30,9 +30,12 @@ Pic.findSeenPictures = function (fbID, callback) {
   })
 }
 
-Pic.createPictureNode = function(imgurID, title, name, description, link, dateAdded, type, callback) {
+Pic.createPictureNode = function(imgurID, title, link, dateAdded, type, callback) {
+  // console.log("in create picture node", imgurID, title, link, dateAdded, type)
+  // callback(undefined, undefined)
+
   session
-  .run('CREATE (p:Picture { imgurID:{imgurID}, title:{title}, name:{name}, description:{description}, link:{link}, dateAdded:{dateAdded}, type:{type}}) RETURN p', {imgurID:imgurID, title:title, name:name, description:description, link:link, dateAdded:dateAdded, type:type})
+  .run('MERGE (p:Trial {imgurID:{imgurID}, title:{title}, link:{link}, dateAdded:{dateAdded}, type:{type}}) RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
   .then(function(result){
     callback(null, result.records[0]._fields[0].properties)
   })

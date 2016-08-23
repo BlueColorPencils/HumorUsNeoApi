@@ -17,7 +17,7 @@ router.get('/', function(req, res, next) {
 router.get('/user/:fbID/', UserController.findUser);
 
 
-router.get('/imgur', UserController.imgur);
+router.get('/imgur', PictureController.imgur);
 
 // POST user info.. FIND or CREATE user (happens AFTER FB OAUTH)
 // router.post('/user/', UserController.findOrCreateUser);

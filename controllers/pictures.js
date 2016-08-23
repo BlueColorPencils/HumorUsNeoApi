@@ -1,6 +1,33 @@
 var Pic = require("../models/picture");
+// var ImgurController = require("../imgur");
 
 var PicController = {
+
+  imgur: function(req, res, next) {
+    var Imgur = require("../imgur");
+    // var xx = ImgurController.getData
+    // console.log("imgurdata", ImgurController.getCall())
+    // console.log("l", req.dog)
+    // console.log("ne", req.write)
+    // console.log("imgurdata")
+    // var x = Imgur
+    // console.log(req.pictures)
+    // console.log(error)
+    res.json("hi")
+            err.status = 500;
+              next(err);
+
+    // Imgur.req(function(error, user) {
+    //     if(error) {
+    //     var err = new Error("Error imgur: " + error.message);
+    //     err.status = 500;
+    //     next(err);
+    //   } else {
+    //     res.json(user)
+    //   }
+    // });
+  },
+
   findUnseenPictures: function(req, res, next) {
     // '/picture/:fbID/unseen'
     var fbID = req.params.fbID
@@ -38,6 +65,7 @@ var PicController = {
 
   createPictureNode: function(req, res, next) {
     //'/picture'
+    console.log("YOLO")
     var info = res.req.body
     var dateAdded = Date.now()
 
