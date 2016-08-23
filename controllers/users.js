@@ -1,11 +1,23 @@
 var User = require("../models/user");
+var Imgur = require("../imgur");
 var async = require("async");
 
 
 var UserController = {
+  imgur: function(req, res, next) {
+    Imgur.req(function(error, user) {
+        if(error) {
+        var err = new Error("Error retrieving user: " + error.message);
+        err.status = 500;
+        next(err);
+      } else {
+        res.json(user)
+      }
+    });
+  },
+
   findUser: function(req, res, next) {
   // '/user/:fbID/'
-    console.log("params", req.params.fbID.toString())
     User.findUser(req.params.fbID.toString(), function(error, user) {
         if(error) {
         var err = new Error("Error retrieving user: " + error.message);
