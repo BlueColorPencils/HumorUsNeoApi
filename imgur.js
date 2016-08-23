@@ -3,20 +3,22 @@ var https = require("https");
 var async = require("async");
 var Pic = require("./models/picture");
 
-module.exports = function () {
+module.exports = function (page) {
+
+  // https://api.imgur.com/3/gallery/r/{subreddit}/{time|top}/{if the sort is "top", day | week | month | year | all}/{page - integer}
+  // maybe I could keep trying a new page
+  var path = "/3/gallery/r/funny/top/month/"+page.toString()
 
   var options = {
     protocol: "https:",
     host: 'api.imgur.com',
-    path: '/3/gallery/r/funny/new/today',
+    path: path,
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': process.env.VALUE
     }
   };
-
-
 
   var req = https.get(options, function(res) {
     var body = "";
@@ -38,19 +40,13 @@ module.exports = function () {
             })
         }
       }, function(error) {
+        // future. IF error, get from a different route.
         if (error) {
-          console.log("cow")
-          let err = new Error("No new nodes to add" + error.message);
-          err.status = 500;
-          // return callback()
-          return
-          // callback(err)
+          console.log("no new pictures added.. sorry")
+          // let err = new Error("No new nodes to add" + error.message);
           // err.status = 500;
         } else {
           console.log("SUCCESS")
-          return
-          // return callback()
-          // res.json("SUCCESS")
         }
       })
     })
@@ -59,4 +55,5 @@ module.exports = function () {
   req.on('error', function(e) {
     console.log('ERROR: ' + e.message);
   });
+
 }

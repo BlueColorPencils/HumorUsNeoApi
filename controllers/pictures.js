@@ -3,36 +3,17 @@ var Imgur = require("../imgur");
 // var ImgurController = require("../imgur");
 
 var PicController = {
-  parsePictureData: function(stuff) {
-    console.log(stuff)
-  },
+
 
   imgur: function(req, res, next) {
-    Imgur()
-    res.status(204).send({})
-    // next()
-    // var xx = ImgurController.getData
-    // console.log("imgurdata", ImgurController.getCall())
-    // console.log("l", req.dog)
-    // console.log("ne", req.write)
-    // console.log("imgurdata")
-    // var x = Imgur
-    // console.log(req.pictures)
-    // console.log(error)
-    // res.json("hi")
-
-            // err.status = 500;
-              // next(err);
-              // next()
-    // Imgur.req(function(error, user) {
-    //     if(error) {
-    //     var err = new Error("Error imgur: " + error.message);
-    //     err.status = 500;
-    //     next(err);
-    //   } else {
-    //     res.json(user)
-    //   }
-    // });
+    // if there's less than 10 unseen pictures left, call imgurs api 4x
+    if (req.unseencount < 10) {
+      Imgur(1)
+      Imgur(2)
+      Imgur(3)
+      Imgur(4)
+      // res.status(204).send({})
+    }
   },
 
   findUnseenPictures: function(req, res, next) {
@@ -48,12 +29,14 @@ var PicController = {
         next(err);
       } else {
         console.log("found unseen pictures")
-        res.json(picture)
+        res.json(picture[1])
+        req.unseencount = picture[0]
+        next()
       }
     });
   },
 
-  findSeenPictures: function(req, res, next) {
+  findSeenPicturesCount: function(req, res, next) {
     // '/picture/:fbID/seen'
     var fbID = req.params.fbID
 
@@ -63,17 +46,18 @@ var PicController = {
         err.status = 500;
         next(err);
       } else if (picturecount % 50 == 0) {
-        console.log("findseenpictures")
+        next()
         res.json("yo")
       } else {
-        res.json(picturecount)
+        req.picturecount = picturecount
+        next()
+        // res.json(picturecount)
       }
     });
   },
 
   createPictureNode: function(req, res, next) {
     //'/picture'
-    console.log("YOLO")
     var info = res.req.body
     var dateAdded = Date.now()
 
@@ -105,7 +89,8 @@ var PicController = {
           err.status = 500;
           next(err);
         } else {
-          res.json(picture)
+          next()
+          // res.json(picture)
         }
       });
     } else {

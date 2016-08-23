@@ -9,39 +9,42 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-// router.get('/imgur', function(req, res, next) {
-//   res.redirect(UserController.findUser)
-// });
 
-// FIND user info ONLY
+// **BUTTON** - (profile) FIND user info ONLY
 router.get('/user/:fbID/', UserController.findUser);
-
 
 router.get('/imgur', PictureController.imgur);
 
-// POST user info.. FIND or CREATE user (happens AFTER FB OAUTH)
+// AFTER FB OAUTH - POST user info.. FIND or CREATE user
 // router.post('/user/', UserController.findOrCreateUser);
 router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
 
-// GET NEW matches of user. ie: CREATE matches
-router.get('/user/:fbID/newmatches', UserController.findNewMatches, UserController.createNewMatches);
+// AFTER PICTURE SWIPE - (1 of 3) FIND seen pictures -> Triggers FIND new matches when picture count%50 is 0 -> GET NEW matches of user.CREATE matches RETURNS an integer of new matches
+router.get('/user/:fbID/newmatches', PictureController.findSeenPicturesCount,  UserController.findNewMatches, UserController.createNewMatches);
 
-// GET existing matches of user AND UPDATE the matches
+// AFTER PICTURE SWIPE - (2 of 3) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.
+router.get('/user/:fbID/newpictures', PictureController.createPictureRel, PictureController.findUnseenPictures, PictureController.imgur);
+
+// AFTER PICTURE SWIPE - (3 of 3) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.
+router.get('/user/:fbID/backend',  PictureController.findUnseenPictures, PictureController.imgur);
+
+// **BUTTON** (matches) GET existing matches of user AND UPDATE the matches
 router.get('/user/:fbID/matches', UserController.findExistingMatches);
 
-
-// POST/ CREATE picture relationship to user. currently NO way to update rel.
-router.post('/picture/relationship', PictureController.createPictureRel);
+// POST CREATE picture relationship to user. currently NO way to update rel.
+// router.post('/picture/relationship', PictureController.createPictureRel);
 
 // POST picture info.. CREATE PICTURE
-router.post('/picture/', PictureController.createPictureNode);
+// router.post('/picture/', PictureController.createPictureNode);
+
+// **BUTTON** (pictures) GET a single picture a user hasn't seen
+// router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
 
 // GET a single picture a user hasn't seen
-router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findSeenPictures, PictureController.imgur);
+// router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findSeenPicturesCount, PictureController.imgur);
 
 // GET a count of all pictures a user has seen
-router.get('/picture/:fbID/seen', PictureController.findSeenPictures);
-
+// router.get('/picture/:fbID/unseeen', PictureController.findUnseenPictures);
 
 // GET ALL nodes of a given :node type
 router.get('/find/:node', UserController.findNodes);
