@@ -1,10 +1,16 @@
 var Pic = require("../models/picture");
+var Imgur = require("../imgur");
 // var ImgurController = require("../imgur");
 
 var PicController = {
+  parsePictureData: function(stuff) {
+    console.log(stuff)
+  },
 
   imgur: function(req, res, next) {
-    var Imgur = require("../imgur");
+    Imgur()
+    res.status(204).send({})
+    // next()
     // var xx = ImgurController.getData
     // console.log("imgurdata", ImgurController.getCall())
     // console.log("l", req.dog)
@@ -13,10 +19,11 @@ var PicController = {
     // var x = Imgur
     // console.log(req.pictures)
     // console.log(error)
-    res.json("hi")
-            err.status = 500;
-              next(err);
+    // res.json("hi")
 
+            // err.status = 500;
+              // next(err);
+              // next()
     // Imgur.req(function(error, user) {
     //     if(error) {
     //     var err = new Error("Error imgur: " + error.message);
@@ -40,6 +47,7 @@ var PicController = {
         err.status = 500;
         next(err);
       } else {
+        console.log("found unseen pictures")
         res.json(picture)
       }
     });

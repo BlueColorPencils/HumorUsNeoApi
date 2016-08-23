@@ -37,7 +37,7 @@ router.post('/picture/relationship', PictureController.createPictureRel);
 router.post('/picture/', PictureController.createPictureNode);
 
 // GET a single picture a user hasn't seen
-router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures);
+router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findSeenPictures, PictureController.imgur);
 
 // GET a count of all pictures a user has seen
 router.get('/picture/:fbID/seen', PictureController.findSeenPictures);
