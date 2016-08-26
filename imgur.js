@@ -3,12 +3,16 @@ var https = require("https");
 var async = require("async");
 var Pic = require("./models/picture");
 
-module.exports = function (page) {
+module.exports = function (album,topic,top,time,page) {
 
   // https://api.imgur.com/3/gallery/r/{subreddit}/{time|top}/{if the sort is "top", day | week | month | year | all}/{page - integer}
   // maybe I could keep trying a new page
-  var path = "/3/gallery/r/funny/top/month/"+page.toString()
 
+  // :top/:time/:page/
+  // var path = "/3/gallery/ r/funny /top/     month/     1
+  // var path = "/3/topics/   funny    /top/   month/     1
+  var path = "/3/"+album+"/"+topic+"/"+top+"/"+time+"/"+page.toString()
+  console.log("img",path)
   var options = {
     protocol: "https:",
     host: 'api.imgur.com',
@@ -27,22 +31,26 @@ module.exports = function (page) {
     }).on('end', function() {
       var wholebody = JSON.parse(body);
       const dateAdded = Date.now()
-      async.each(wholebody.data, function(info, callback) {
-        if (info.type !== 'image/gif' && info.type !== undefined) {
-          Pic.createPictureNode(info.id, info.title, info.link, dateAdded, info.type, function(error, match) {
+      async.forEach(wholebody.data, function(info, callback) {
+        if (info.type !== 'image/gif' && info.type !== undefined && ((info.height/info.width) < 2.5)) {
+           var link = "https"+info.link.slice(4,info.link.length)
+          Pic.createPictureNode(info.id, info.title, link, dateAdded, info.type, function(error, match) {
             if(error) {
-              // IF ERROR WE NEED TO TRY ANOTHER ROUTE??
-              let err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
-              err.status = 500;
-              return callback(err)
+              // console.log("error", error)
+            //   // IF ERROR WE NEED TO TRY ANOTHER ROUTE??
+            //   let err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
+            //   err.status = 500;
+              next()
+              // return callback()
             }
+            // console.log("match", match)
               return callback()
             })
         }
       }, function(error) {
         // future. IF error, get from a different route.
         if (error) {
-          console.log("no new pictures added.. sorry")
+          console.log("error with adding pictures..")
           // let err = new Error("No new nodes to add" + error.message);
           // err.status = 500;
         } else {

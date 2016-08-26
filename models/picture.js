@@ -12,8 +12,11 @@ Pic.findUnseenPictures = function (fbID, callback) {
   session
   .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID: fbID})
   .then(function(result){
+    // console.log(result.records)
+    let x = result.records.length
+    let y = Math.floor(Math.random() * (x-1))
     var pictureArr = []
-    pictureArr.push(result.records.length, result.records[0]._fields[0].properties)
+    pictureArr.push(x, result.records[y]._fields[0].properties)
     callback(null, pictureArr)
   })
   .catch(function(err){
@@ -34,7 +37,8 @@ Pic.findSeenPicturesCount = function (fbID, callback) {
 
 Pic.createPictureNode = function(imgurID, title, link, dateAdded, type, callback) {
   session
-  .run('MERGE (p:Picture {imgurID:{imgurID}, title:{title}, link:{link}, dateAdded:{dateAdded}, type:{type}}) RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
+  .run('MERGE (p:Picture {imgurID:{imgurID}, title:{title}, link:{link}, type:{type}}) ON CREATE SET p.dateAdded = timestamp() ON MATCH SET p.lastSeen = timestamp() RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
+  // .run('MERGE (p:Picture {imgurID:{imgurID}, title:{title}, link:{link}, dateAdded:{dateAdded}, type:{type}}) ON CREATE SET p.dateAdded = timestamp() ON MATCH SET p.dateAdded = timestamp() RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
   .then(function(result){
     callback(null, result.records[0]._fields[0].properties)
   })

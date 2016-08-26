@@ -13,20 +13,24 @@ router.get('/', function(req, res, next) {
 // **BUTTON** - (profile) FIND user info ONLY
 router.get('/user/:fbID/', UserController.findUser);
 
-router.get('/imgur', PictureController.imgur);
+router.get('/imgur/:album/:topic/:top/:time/:page', PictureController.imgurs);
 
 // AFTER FB OAUTH - POST user info.. FIND or CREATE user
 // router.post('/user/', UserController.findOrCreateUser);
 router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
 
-// AFTER PICTURE SWIPE - (1 of 3) FIND seen pictures -> Triggers FIND new matches when picture count%50 is 0 -> GET NEW matches of user.CREATE matches RETURNS an integer of new matches
+// **BUTTON** (pictures) GET a single picture a user hasn't seen
+router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
+
+// AFTER PICTURE SWIPE - (1 of 2) FIND seen pictures -> Triggers FIND new matches when picture count%50 is 0 -> GET NEW matches of user.CREATE matches RETURNS an integer of new matches
 router.get('/user/:fbID/newmatches', PictureController.findSeenPicturesCount,  UserController.findNewMatches, UserController.createNewMatches);
 
-// AFTER PICTURE SWIPE - (2 of 3) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.
-router.get('/user/:fbID/newpictures', PictureController.createPictureRel, PictureController.findUnseenPictures, PictureController.imgur);
+//setPictureLike
+// AFTER PICTURE SWIPE - (2 of 2) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.
+router.post('/picture/newpictures', PictureController.createPictureRel);
 
-// AFTER PICTURE SWIPE - (3 of 3) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.
-router.get('/user/:fbID/backend',  PictureController.findUnseenPictures, PictureController.imgur);
+// AFTER PICTURE SWIPE - (3 of 3) FIND unseen pictures -> If NONE, add new pictures .
+// router.get('/user/:fbID/backend',  PictureController.findUnseenPictures, PictureController.imgur);
 
 // **BUTTON** (matches) GET existing matches of user AND UPDATE the matches
 router.get('/user/:fbID/matches', UserController.findExistingMatches);
@@ -37,8 +41,8 @@ router.get('/user/:fbID/matches', UserController.findExistingMatches);
 // POST picture info.. CREATE PICTURE
 // router.post('/picture/', PictureController.createPictureNode);
 
-// **BUTTON** (pictures) GET a single picture a user hasn't seen
-// router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
+
+// router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
 
 // GET a single picture a user hasn't seen
 // router.get('/picture/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findSeenPicturesCount, PictureController.imgur);

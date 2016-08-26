@@ -5,7 +5,7 @@ var async = require("async");
 var UserController = {
 
   findUser: function(req, res, next) {
-  // '/user/:fbID/'
+    // '/user/:fbID/'
     User.findUser(req.params.fbID.toString(), function(error, user) {
         if(error) {
         var err = new Error("Error retrieving user: " + error.message);
@@ -35,6 +35,7 @@ var UserController = {
         if (!info.preferredAgeMax) {info.preferredAgeMax = 60}
         if (!info.lat) {info.lat = 0}
         if (!info.long) {info.long = 0}
+        if (!info.education) {info.education = 'none'}
         if (!info.description) {info.description = "Hi, I am "+info.name+"!"}
         if (!info.gender || ((gender !== 'male') && (gender !== 'female')) ) {
           info.gender = 'none'
@@ -55,11 +56,10 @@ var UserController = {
 
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
-
     const info = req.information
     const date = Date.now() // in seconds
 
-    User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.gender, info.preferredGender, function(error, users) {
+    User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
       // if there's an error => wrong JSON body
       if(error) {
         var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
@@ -75,33 +75,47 @@ var UserController = {
   // THIS SHOULD BE TRIGGERED AFTER USER HAS SEEN batches of 50 pictures
   findNewMatches: function(req, res, next) {
   // '/user/:fbID/newmatches' (1 of 2)
-    const fbID = req.params.fbID.toString()
+    let fbID = req.fbID
+    let count = req.picturecount
+        console.log("POPCORN", count, fbID)
+    if (count % 20 == 0) {
 
-    User.findNewMatches(fbID, function(error, matches) {
-      // There are NO new matches...
-      if(error || matches === null) {
-        if (error == "TypeError: Cannot read property '_fields' of undefined") {
-          let err = new Error("Incorrect fbID");
-          err.status = 500;
-          next(err);
+      User.findNewMatches(fbID, function(error, matches) {
+        // There are NO new matches...
+        if(error || matches === null) {
+          console.log("null?", error)
+          // if (error == "TypeError: Cannot read property '_fields' of undefined") {
+            let err = new Error("Incorrect fbID");
+            err.status = 500;
+            next(err);
+
+          // } else {
+          //   let err = new Error("No new matches");
+          //   err.status = 500;
+          //   next(err);
+          // }
 
         } else {
-          let err = new Error("No new matches");
-          err.status = 500;
-          next(err);
+          console.log("elseeee", matches)
+          req.query = matches
+          req.fbID = fbID
+          next()
         }
+      });
+    } else {
+      console.log("hither")
+      res.json("No new matches")
+      // req.query = matches
+      // req.fbID = fbID
+      // next()
+    }
 
-      } else {
-        req.query = matches
-        req.fbID = fbID
-        next()
-      }
-    });
   },
 
   createNewMatches: function(req, res, next) {
   // '/user/:fbID/newmatches' (2 of 2)
     const matchesArr = req.query
+    console.log("MATCHES", matchesArr)
     const date = Date.now() // in seconds
 
     // I love you async package. <3

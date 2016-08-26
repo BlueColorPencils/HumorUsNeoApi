@@ -22,12 +22,12 @@ User.findUser = function(fbID, callback) {
 
 // this should ONLY happen AFTER fb Oauth IF user is NOT found.
 // should ever happen ONCE!!!!!!!!!
-User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description, gender, preferredGender, callback) {
+User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description, education, gender, preferredGender, callback) {
 
   // CREATES a new user with properties
   // CREATES a relationship to gender and preferredGender
   session
-  .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, gender:gender, preferredGender:preferredGender})
+  .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}, education:{education}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, education:education, gender:gender, preferredGender:preferredGender})
 
   .then(function(result){
     let userInfos = result.records[0]._fields[0].properties;
@@ -41,18 +41,22 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
 
 // finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
-
+  console.log("in find new matches", fbID)
   session
-  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) WITH m,n,sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as totes WHERE totes > 5 RETURN n, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0))*100 as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  // .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+
+
 
   .then(function(result){
-    if (result.records[0]._fields[0] == null) {
-      const matchesArr = null
-      const err = "Could not find new matches"
+    console.log("matches", result.records.length)
+    if (result.records.length == null) {
+      let matchesArr = null
+      let err = "No new matches"
     } else {
-      const matchesArr = [];
+      var matchesArr = [];
       result.records.forEach(function(record){
-        // console.log("fields", record._fields)
+        console.log("fields", record._fields[0].properties.fbID)
         matchesArr.push({
           name: record._fields[0].properties.name,
           fbID: record._fields[0].properties.fbID,
@@ -60,11 +64,13 @@ User.findNewMatches = function(fbID, callback) {
         })
       })
       const err = null
+      console.log("huh?", matchesArr)
       // matchesArr.unshift(matchesArr.length)
     }
-    callback(err, matchesArr)
+    callback(undefined, matchesArr)
   })
   .catch(function(err){
+    console.log("has error?", err)
     callback(err, undefined)
   })
 }
@@ -83,7 +89,7 @@ User.createNewMatches = function(fbID, matchObj, dateAdded, callback) {
 User.findExistingMatches = function(fbID, callback) {
   session
   // .run('MATCH (n:User {fbID: {fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (n)-[l:MATCHES]->(p) RETURN p, l', {fbID:fbID})
-  .run('PROFILE MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (m)-[l:MATCHES]->(n) WITH n, l, m, sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as likes, sum(size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) as dislikes, sum(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))) as total      SET l.percentage = ((likes+dislikes)/(total*1.0))*100 RETURN n, l, total ORDER BY (l.percentage) DESC', {fbID:fbID})
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (m)-[l:MATCHES]->(n) WITH n, l, m, sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as likes, sum(size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) as dislikes, sum(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))) as total      SET l.percentage = ((likes+dislikes)/(total*1.0))*100 RETURN n, l, total ORDER BY (l.percentage) DESC', {fbID:fbID})
   .then(function(result){
     var matchesArr = [];
     result.records.forEach(function(record){
