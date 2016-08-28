@@ -78,7 +78,7 @@ var UserController = {
     let fbID = req.fbID
     let count = req.picturecount
         console.log("POPCORN", count, fbID)
-    if (count % 20 == 0) {
+    if (count % 50 == 0) {
 
       User.findNewMatches(fbID, function(error, matches) {
         // There are NO new matches...
