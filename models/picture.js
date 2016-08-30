@@ -13,8 +13,8 @@ Pic.findUnseenPictures = function (fbID, callback) {
   .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID: fbID})
   .then(function(result){
     // console.log(result.records)
-    let x = result.records.length
-    let y = Math.floor(Math.random() * (x-1))
+    var x = result.records.length
+    var y = Math.floor(Math.random() * (x-1))
     var pictureArr = []
     pictureArr.push(x, result.records[y]._fields[0].properties)
     callback(null, pictureArr)
@@ -48,10 +48,10 @@ Pic.createPictureNode = function(imgurID, title, link, dateAdded, type, callback
 }
 
 
-//currently lets you add multiple relationships to a photo
+//currently vars you add multiple relationships to a photo
 // will fix after mvp
 Pic.createPictureRel =  function(fbID, imgurID, relationship, dateAdded, callback) {
-  let query = "MATCH (n:User {fbID:'"+fbID+"'}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture {imgurID:'"+imgurID+"'}) USING INDEX p:Picture(imgurID) MERGE (n)-[l:"+relationship+"]->(p) ON CREATE SET l.dateAdded = "+dateAdded+" RETURN p, n"
+  var query = "MATCH (n:User {fbID:'"+fbID+"'}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture {imgurID:'"+imgurID+"'}) USING INDEX p:Picture(imgurID) MERGE (n)-[l:"+relationship+"]->(p) ON CREATE SET l.dateAdded = "+dateAdded+" RETURN p, n"
   session
   .run(query)
   .then(function(result){

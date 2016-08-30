@@ -38,7 +38,7 @@ module.exports = function (album,topic,top,time,page) {
             if(error) {
               // console.log("error", error)
             //   // IF ERROR WE NEED TO TRY ANOTHER ROUTE??
-            //   let err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
+            //   var err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
             //   err.status = 500;
               next()
               // return callback()
@@ -51,7 +51,7 @@ module.exports = function (album,topic,top,time,page) {
         // future. IF error, get from a different route.
         if (error) {
           console.log("error with adding pictures..")
-          // let err = new Error("No new nodes to add" + error.message);
+          // var err = new Error("No new nodes to add" + error.message);
           // err.status = 500;
         } else {
           console.log("SUCCESS")

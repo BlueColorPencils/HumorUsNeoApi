@@ -124,8 +124,8 @@ var UserController = {
   // THIS SHOULD BE TRIGGERED AFTER USER HAS SEEN batches of 50 pictures
   findNewMatches: function(req, res, next) {
   // '/user/:fbID/newmatches' (1 of 2)
-    let fbID = req.fbID
-    let count = req.picturecount
+    var fbID = req.fbID
+    var count = req.picturecount
         console.log("POPCORN", count, fbID)
     if (count % 50 == 0) {
 
@@ -134,12 +134,12 @@ var UserController = {
         if(error || matches === null) {
           console.log("null?", error)
           // if (error == "TypeError: Cannot read property '_fields' of undefined") {
-            let err = new Error("Incorrect fbID");
+            var err = new Error("Incorrect fbID");
             err.status = 500;
             next(err);
 
           // } else {
-          //   let err = new Error("No new matches");
+          //   var err = new Error("No new matches");
           //   err.status = 500;
           //   next(err);
           // }
@@ -172,7 +172,7 @@ var UserController = {
       User.createNewMatches(req.fbID, info, date, function(error, match) {
         // error with my query
         if(error) {
-          let err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
+          var err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
           err.status = 500;
           return callback(err)
         }

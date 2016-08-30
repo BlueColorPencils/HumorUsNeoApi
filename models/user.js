@@ -12,7 +12,7 @@ User.findUser = function(fbID, callback) {
   session
   .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
-    let userInfo = result.records[0]._fields[0].properties;
+    var userInfo = result.records[0]._fields[0].properties;
     callback(null, userInfo)
   })
   .catch(function(err){
@@ -31,7 +31,7 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationMI
   .run('CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationMI:{preferredLocationMI}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}, education:{education}, gender:{gender}, preferredGender:{preferredGender} }) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationMI:preferredLocationMI, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, education:education, gender:gender, preferredGender:preferredGender})
 
   .then(function(result){
-    let userInfos = result.records[0]._fields[0].properties;
+    var userInfos = result.records[0]._fields[0].properties;
     callback(null, userInfos)
   })
   .catch(function(err){
@@ -45,7 +45,7 @@ User.updateUser = function(fbID, birthday, preferredLocationMI, preferredAgeMin,
   .run('MATCH (n:User {fbID: {fbID}}) SET n.birthday={birthday}, n.preferredLocationMI={preferredLocationMI}, n.preferredAgeMin={preferredAgeMin}, n.preferredAgeMax={preferredAgeMax}, n.description={description}, n.gender={gender}, n.preferredGender={preferredGender} RETURN n', {fbID:fbID, birthday:birthday, preferredLocationMI:preferredLocationMI, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, description:description, gender:gender, preferredGender:preferredGender})
   .then(function(result){
     console.log("result", result)
-    let userInfos = result.records[0]._fields[0].properties;
+    var userInfos = result.records[0]._fields[0].properties;
     callback(null, userInfos)
   })
   .catch(function(err){
@@ -66,8 +66,8 @@ User.findNewMatches = function(fbID, callback) {
   .then(function(result){
     console.log("matches", result.records.length)
     if (result.records.length == null) {
-      let matchesArr = null
-      let err = "No new matches"
+      var matchesArr = null
+      var err = "No new matches"
     } else {
       var matchesArr = [];
       result.records.forEach(function(record){
@@ -159,7 +159,7 @@ User.findNodes = function(node, callback) {
 //     console.log("in create Gender Rel", result)
 //     // console.log("2", result.records)
 //     // console.log("1", result.records[0]._fields[0].properties)
-//       let userInfo = result.records[0]._fields[0].properties
+//       var userInfo = result.records[0]._fields[0].properties
 //     callback(null, userInfo)
 //   })
 //   .catch(function(err){

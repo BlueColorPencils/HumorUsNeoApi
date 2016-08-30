@@ -22,11 +22,11 @@ var PicController = {
   },
 
   imgurs: function(req, res, next) {
-    let album = req.params.album
-    let topic = req.params.topic
-    let top = req.params.top
-    let time = req.params.time
-    let page = req.params.page
+    var album = req.params.album
+    var topic = req.params.topic
+    var top = req.params.top
+    var time = req.params.time
+    var page = req.params.page
     // :top/:time/:page/
     console.log("imgurs", album, topic, top, time, page)
       Imgur(album,topic,top,time,page)
