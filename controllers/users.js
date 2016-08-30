@@ -20,6 +20,7 @@ var UserController = {
   findOrCreateUser: function(req, res, next) {
     // '/user/' POST (1 of 2)
     var info = res.req.body
+    console.log(info)
     info.fbID = info.fbID.toString()
 
     // FIND if user exists
@@ -30,21 +31,28 @@ var UserController = {
         if (!info.age) {info.age = 18}
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
         if (!info.birthday) {info.birthday = 0}
-        if (!info.preferredLocationKM) {info.preferredLocationKM = 0}
+        if (!info.preferredLocationMI) {info.preferredLocationMI = 999999}
         if (!info.preferredAgeMin) {info.preferredAgeMin = info.age}
         if (!info.preferredAgeMax) {info.preferredAgeMax = 60}
         if (!info.lat) {info.lat = 0}
         if (!info.long) {info.long = 0}
         if (!info.education) {info.education = 'none'}
-        if (!info.description) {info.description = "Hi, I am "+info.name+"!"}
-        if (!info.gender || ((gender !== 'male') && (gender !== 'female')) ) {
-          info.gender = 'none'
-        }
-        if (!info.preferredGender) {
-          info.preferredGender = 'friends'
+        // if (!info.description) {info.description}
+
+        if (info.gender) {
+          info.gender = [string[0].toUpperCase() + string.substring(1).toLowerCase()]
+          info.gender.push('Friends')
         } else {
-          info.preferredGender = info.preferredGender.toLowerCase()
+          info.gender = ['Friends']
         }
+
+        if (info.preferredGender) {
+          info.preferredGender = [string[0].toUpperCase() + string.substring(1).toLowerCase()]
+          info.preferredGender.push('Friends')
+        } else {
+          info.preferredGender = ['Friends']
+        }
+
         req.information = info
         next()
 
@@ -53,13 +61,54 @@ var UserController = {
       }
     });
   },
+  updateUser: function(req, res, next) {
+    const info = res.req.body
+    console.log("info", info)
+
+    if (!info.birthday) {info.birthday = 0}
+
+    if (!info.description) {info.description = ''}
+
+    if (!info.gender) {
+      info.gender = ['Friends']
+    }
+    // else {
+      // var found = info.gender.indexOf(" ");
+      // while (found !== -1) {
+      //   info.gender.splice(found, 1);
+      //   found = info.gender.indexOf(" ");
+      // }
+    // }
+
+    if (!info.preferredGender) {
+      info.preferredGender = ['Friends']
+    }
+
+    if (info.preferredGender.indexOf('Friends') !== -1) {
+      info.gender.push('Friends')
+    }
+
+    User.updateUser(info.fbID.toString(), info.birthday, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.description, info.gender, info.preferredGender, function(error, users) {
+      // if there's an error => wrong JSON body
+      if(error) {
+        console.log(error)
+        var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
+        err.status = 500;
+        next(err);
+      }
+      else {
+        console.log("success", users)
+        res.json(users)
+      }
+    })
+  },
 
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
     const info = req.information
     const date = Date.now() // in seconds
 
-    User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationKM, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
+    User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
       // if there's an error => wrong JSON body
       if(error) {
         var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);

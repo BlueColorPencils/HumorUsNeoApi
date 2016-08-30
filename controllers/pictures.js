@@ -10,13 +10,13 @@ var PicController = {
 
   imgur: function(req, res, next) {
     // if there's less than 100 unseen pictures left, call imgurs api
-    if (req.unseencount < 100) {
-      Imgur('gallery', 'r/funny', 'week', '1')
-      Imgur('gallery', 'r/funny', 'week', '2')
-      Imgur('gallery', 'r/funny', 'week', '3')
-      Imgur('gallery', 'r/funny', 'week', '4')
-      Imgur('gallery', 'r/funny', 'week', '5')
-      Imgur('gallery', 'r/funny', 'week', '6')
+    if (req.unseencount < 300) {
+      Imgur('gallery', 'r/funny', 'top','week', '1')
+      Imgur('gallery', 'r/funny', 'top','week', '2')
+      Imgur('gallery', 'r/funny', 'top','week', '3')
+      Imgur('gallery', 'r/funny', 'top','week', '4')
+      Imgur('gallery', 'r/funny', 'top','week', '5')
+      Imgur('gallery', 'r/funny', 'top','week', '6')
       res.status(204).send({})
     }
   },

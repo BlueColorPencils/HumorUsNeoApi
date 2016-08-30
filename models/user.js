@@ -20,14 +20,15 @@ User.findUser = function(fbID, callback) {
   })
 }
 
+
 // this should ONLY happen AFTER fb Oauth IF user is NOT found.
 // should ever happen ONCE!!!!!!!!!
-User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM, preferredAgeMin, preferredAgeMax, lat, long, date, description, education, gender, preferredGender, callback) {
+User.createUser = function(fbID, name, birthday, age, photo, preferredLocationMI, preferredAgeMin, preferredAgeMax, lat, long, date, description, education, gender, preferredGender, callback) {
 
   // CREATES a new user with properties
   // CREATES a relationship to gender and preferredGender
   session
-  .run('MERGE (ig:Gender {name:{gender}}) MERGE (wg:Gender {name:{preferredGender}}) CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationKM:{preferredLocationKM}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}, education:{education}}), (ig)<-[:ISGENDER]-(n)-[:WANTSGENDER]->(wg) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationKM:preferredLocationKM, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, education:education, gender:gender, preferredGender:preferredGender})
+  .run('CREATE (n:User {fbID:{fbID}, name:{name}, birthday:{birthday}, age:{age}, photo:{photo}, preferredLocationMI:{preferredLocationMI}, preferredAgeMin:{preferredAgeMin}, preferredAgeMax:{preferredAgeMax}, lat:{lat}, long:{long}, dateJoined:{dateJoined}, dateLastLogin:{dateLastLogin}, description:{description}, education:{education}, gender:{gender}, preferredGender:{preferredGender} }) RETURN n', {fbID:fbID, name:name, birthday:birthday, age:age, photo:photo, preferredLocationMI:preferredLocationMI, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, lat:lat, long:long, dateJoined:date, dateLastLogin:date, description:description, education:education, gender:gender, preferredGender:preferredGender})
 
   .then(function(result){
     let userInfos = result.records[0]._fields[0].properties;
@@ -38,15 +39,29 @@ User.createUser = function(fbID, name, birthday, age, photo, preferredLocationKM
   })
 }
 
+User.updateUser = function(fbID, birthday, preferredLocationMI, preferredAgeMin, preferredAgeMax, description, gender, preferredGender, callback) {
+  console.log("UPDATEEE", fbID, birthday, preferredLocationMI, preferredAgeMin, preferredAgeMax, description, gender, preferredGender)
+  session
+  .run('MATCH (n:User {fbID: {fbID}}) SET n.birthday={birthday}, n.preferredLocationMI={preferredLocationMI}, n.preferredAgeMin={preferredAgeMin}, n.preferredAgeMax={preferredAgeMax}, n.description={description}, n.gender={gender}, n.preferredGender={preferredGender} RETURN n', {fbID:fbID, birthday:birthday, preferredLocationMI:preferredLocationMI, preferredAgeMin:preferredAgeMin, preferredAgeMax:preferredAgeMax, description:description, gender:gender, preferredGender:preferredGender})
+  .then(function(result){
+    console.log("result", result)
+    let userInfos = result.records[0]._fields[0].properties;
+    callback(null, userInfos)
+  })
+  .catch(function(err){
+    callback(err, undefined)
+  })
+}
+
+
+
 
 // finds 5 new matches after user likes a batch of 50 photos
 User.findNewMatches = function(fbID, callback) {
   console.log("in find new matches", fbID)
   session
-  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) WITH m,n,sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as totes WHERE totes > 25 RETURN n, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0))*100 as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
-  // .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE NOT (m)-[:MATCHES]->(n) AND (m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n) RETURN n, m, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0)) as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
-
-
+  .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WITH m,n,sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as totes WHERE totes > 25 WITH m, n, totes, SUM(2*6371*asin(sqrt(haversin(radians(m.lat - n.lat))+cos(radians(m.lat))* cos(radians(n.lat))* haversin(radians(m.long - n.long)))))*0.621371 AS distance WHERE distance < m.preferredLocationMI AND ANY(gender IN n.gender WHERE gender IN m.preferredgender) AND NOT (m)-[:MATCHES]->(n) RETURN n, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0))*100 as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
+  // .run('MATCH (m:User {fbID: {fbID}}) USING INDEX m:User(fbID) OPTIONAL MATCH (n:User) WHERE ANY(gender IN n.gender WHERE gender IN m.preferredgender) AND NOT (m)-[:MATCHES]->(n) WITH m,n,sum(size((m)-[:LIKES]->()<-[:LIKES]-(n))) as totes WHERE totes > 25 WITH m, n,  SUM(2*6371*asin(sqrt(haversin(radians(n.lat - l.lat))+cos(radians(n.lat))* cos(radians(l.lat))* haversin(radians(n.long - l.long)))))*0.621371 AS distance  WHERE distance < 50 RETURN n, ((size((m)-[:LIKES]->()<-[:LIKES]-(n)) +size((m)-[:DISLIKES]->()<-[:DISLIKES]-(n))) /(size((m)-[:LIKES|:DISLIKES]->()<-[:LIKES|:DISLIKES]-(n))*1.0))*100 as percentage ORDER BY (percentage) DESC LIMIT 5', {fbID:fbID})
 
   .then(function(result){
     console.log("matches", result.records.length)
@@ -93,6 +108,7 @@ User.findExistingMatches = function(fbID, callback) {
   .then(function(result){
     var matchesArr = [];
     result.records.forEach(function(record){
+      console.log(record)
       matchesArr.push({
         name: record._fields[0].properties.name,
         age: record._fields[0].properties.age,

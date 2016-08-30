@@ -19,6 +19,10 @@ router.get('/imgur/:album/:topic/:top/:time/:page', PictureController.imgurs);
 // router.post('/user/', UserController.findOrCreateUser);
 router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
 
+
+// Update a user's info
+router.post('/user/update', UserController.updateUser);
+
 // **BUTTON** (pictures) GET a single picture a user hasn't seen
 router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
 
