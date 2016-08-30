@@ -1,7 +1,7 @@
 var app = require("../app");
 var neo4j = require('neo4j-driver').v1;
 
-var driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j','MEOW'))
+var driver = neo4j.driver('bolt://52.33.17.59/db/data/', neo4j.auth.basic('Neo4j','neo4j'))
 var session = driver.session();
 
 var Pic = function(pic) {
