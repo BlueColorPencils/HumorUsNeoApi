@@ -5,10 +5,12 @@ var UserController = require('../controllers/users');
 var PictureController = require('../controllers/pictures');
 
 /* GET home page. */
+// router.get('/', function(req, res, next) {
+//   res.render('index', { title: 'Express' });
+// });
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
-
+ res.json({"HI": "THERE"})
+ }) 
 
 // **BUTTON** - (profile) FIND user info ONLY
 router.get('/user/:fbID/', UserController.findUser);
