@@ -1,4 +1,3 @@
-require('dotenv').config()
 var https = require("https");
 var async = require("async");
 var Pic = require("./models/picture");
