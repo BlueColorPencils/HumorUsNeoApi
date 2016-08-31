@@ -72,21 +72,26 @@ var UserController = {
 
     if (!info.gender) {
       info.gender = ['Friends']
+    } else {
+      var found = info.gender.indexOf(" ");
+      while (found !== -1) {
+        info.gender.splice(found, 1);
+        found = info.gender.indexOf(" ");
+      }
     }
-    // else {
-      // var found = info.gender.indexOf(" ");
-      // while (found !== -1) {
-      //   info.gender.splice(found, 1);
-      //   found = info.gender.indexOf(" ");
-      // }
-    // }
 
     if (!info.preferredGender) {
       info.preferredGender = ['Friends']
     }
 
     if (info.preferredGender.indexOf('Friends') !== -1) {
-      info.gender.push('Friends')
+      info.preferredGender.push('Friends')
+    } else {
+      var found = info.preferredGender.indexOf(" ");
+      while (found !== -1) {
+        info.preferredGender.splice(found, 1);
+        found = info.preferredGender.indexOf(" ");
+      }
     }
 
     User.updateUser(info.fbID.toString(), info.birthday, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.description, info.gender, info.preferredGender, function(error, users) {

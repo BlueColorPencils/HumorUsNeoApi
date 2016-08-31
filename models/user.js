@@ -3,7 +3,6 @@ var neo4j = require('neo4j-driver').v1;
 var config = require("../config");
 
 var driver = neo4j.driver(config.neo4j.url, neo4j.auth.basic(config.neo4j.username, config.neo4j.password))
-// var driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j','MEOW'))
 var session = driver.session();
 
 var User = function(user) {
@@ -18,8 +17,25 @@ User.findUser = function(fbID, callback) {
       callback("not found", undefined)
     } else {
     // console.log(result)
-    var userInfo = result.records[0]._fields[0].properties;
-    callback(null, userInfo)
+      var userInfo = result.records[0]._fields[0].properties;
+      var newgenderArr = userInfo.gender
+      var tempArr = []
+
+      for (var i = 0, i < newgenderArr.length, i++) {
+        tempArr.push(" ", newgenderArr(i))
+      }
+      userInfo.gender = tempArr
+
+      var newgenderPrefArr = userInfo.preferredGender
+      var tempArrTwo = []
+
+      for (var i = 0, i < newgenderPrefArr.length, i++) {
+        tempArr.push(" ", newgenderPrefArr(i))
+      }
+      userInfo.preferredGender = tempArrTwo
+      console.log(userInfo)
+
+      callback(null, userInfo)
     }
   })
   .catch(function(err){

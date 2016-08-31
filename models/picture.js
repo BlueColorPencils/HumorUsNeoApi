@@ -3,7 +3,6 @@ var neo4j = require('neo4j-driver').v1;
 var config = require("../config");
 
 var driver = neo4j.driver(config.neo4j.url, neo4j.auth.basic(config.neo4j.username, config.neo4j.password))
-// var driver = neo4j.driver('bolt://localhost')
 var session = driver.session();
 
 var Pic = function(pic) {
@@ -42,9 +41,11 @@ Pic.createPictureNode = function(imgurID, title, link, dateAdded, type, callback
   .run('MERGE (p:Picture {imgurID:{imgurID}, title:{title}, link:{link}, type:{type}}) ON CREATE SET p.dateAdded = timestamp() ON MATCH SET p.lastSeen = timestamp() RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
   // .run('MERGE (p:Picture {imgurID:{imgurID}, title:{title}, link:{link}, dateAdded:{dateAdded}, type:{type}}) ON CREATE SET p.dateAdded = timestamp() ON MATCH SET p.dateAdded = timestamp() RETURN p', {imgurID:imgurID, title:title, link:link, dateAdded:dateAdded, type:type})
   .then(function(result){
+    console.log("created pic", result.records[0]._fields[0].properties)
     callback(null, result.records[0]._fields[0].properties)
   })
   .catch(function(err){
+    console.log("failed", err)
     callback(err, undefined)
   })
 }
