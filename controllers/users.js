@@ -26,6 +26,7 @@ var UserController = {
     // FIND if user exists
     User.findUser(info.fbID, function(error, user) {
       // CREATE the user if error finding a user (user does NOT exist)
+      console.log(error, user);
       if(error) {
         var gender = info.gender.toLowerCase()
         if (!info.age) {info.age = 18}
@@ -40,14 +41,14 @@ var UserController = {
         // if (!info.description) {info.description}
 
         if (info.gender) {
-          info.gender = [string[0].toUpperCase() + string.substring(1).toLowerCase()]
+          info.gender = [info.gender[0].toUpperCase() + info.gender.substring(1).toLowerCase()]
           info.gender.push('Friends')
         } else {
           info.gender = ['Friends']
         }
 
         if (info.preferredGender) {
-          info.preferredGender = [string[0].toUpperCase() + string.substring(1).toLowerCase()]
+          info.preferredGender = [info.preferredGender[0].toUpperCase() + info.preferredGender.substring(1).toLowerCase()]
           info.preferredGender.push('Friends')
         } else {
           info.preferredGender = ['Friends']

@@ -1,7 +1,8 @@
 var app = require("../app");
 var neo4j = require('neo4j-driver').v1;
 
-var driver = neo4j.driver('bolt://52.33.17.59/db/data/', neo4j.auth.basic('Neo4j','neo4j'))
+var driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j','MEOW'))
+// var driver = neo4j.driver('bolt://localhost')
 var session = driver.session();
 
 var User = function(user) {
@@ -12,8 +13,13 @@ User.findUser = function(fbID, callback) {
   session
   .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
+    if (result.records.length === 0 ){
+      callback("not found", undefined)
+    } else {
+    // console.log(result)
     var userInfo = result.records[0]._fields[0].properties;
     callback(null, userInfo)
+    }
   })
   .catch(function(err){
     callback(err, undefined)

@@ -17,11 +17,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes/index');
 app.use('/api', routes);
-//
-//
-// //new to version 3.0 of neo4j
-// var driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('neo4j','MEOW'))
-// var session = driver.session();
 
 
 // catch 404 and forward to error handler
