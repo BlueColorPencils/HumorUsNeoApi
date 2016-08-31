@@ -32,7 +32,7 @@ var UserController = {
         if (!info.age) {info.age = 18}
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
         if (!info.birthday) {info.birthday = 0}
-        if (!info.preferredLocationMI) {info.preferredLocationMI = 999999}
+        if (!info.preferredLocationMI) {info.preferredLocationMI = 13000}
         if (!info.preferredAgeMin) {info.preferredAgeMin = info.age}
         if (!info.preferredAgeMax) {info.preferredAgeMax = 60}
         if (!info.lat) {info.lat = 0}
@@ -62,52 +62,6 @@ var UserController = {
       }
     });
   },
-  updateUser: function(req, res, next) {
-    const info = res.req.body
-    console.log("info", info)
-
-    if (!info.birthday) {info.birthday = 0}
-
-    if (!info.description) {info.description = ''}
-
-    if (!info.gender) {
-      info.gender = ['Friends']
-    } else {
-      var found = info.gender.indexOf(" ");
-      while (found !== -1) {
-        info.gender.splice(found, 1);
-        found = info.gender.indexOf(" ");
-      }
-    }
-
-    if (!info.preferredGender) {
-      info.preferredGender = ['Friends']
-    }
-
-    if (info.preferredGender.indexOf('Friends') !== -1) {
-      info.preferredGender.push('Friends')
-    } else {
-      var found = info.preferredGender.indexOf(" ");
-      while (found !== -1) {
-        info.preferredGender.splice(found, 1);
-        found = info.preferredGender.indexOf(" ");
-      }
-    }
-
-    User.updateUser(info.fbID.toString(), info.birthday, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.description, info.gender, info.preferredGender, function(error, users) {
-      // if there's an error => wrong JSON body
-      if(error) {
-        console.log(error)
-        var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
-        err.status = 500;
-        next(err);
-      }
-      else {
-        console.log("success", users)
-        res.json(users)
-      }
-    })
-  },
 
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
@@ -126,6 +80,61 @@ var UserController = {
       }
     })
   },
+
+    updateUser: function(req, res, next) {
+      const info = res.req.body
+      console.log("info", info)
+
+      if (!info.birthday) {info.birthday = 0}
+
+      if (!info.description) {info.description = ''}
+
+      if (!info.gender) {
+        info.gender = ['Friends']
+      } else {
+        var found = info.gender.indexOf(" ");
+        while (found !== -1) {
+          info.gender.splice(found, 1);
+          found = info.gender.indexOf(" ");
+        }
+      }
+
+      if (info.preferredGender.indexOf("Friends") !== -1 && info.gender.indexOf("Friends") === -1) {
+        info.gender.push('Friends')
+      }
+
+      if (info.gender.indexOf("Friends") !== -1 && info.preferredGender.indexOf("Friends") === -1) {
+        info.preferredGender.push('Friends')
+      }
+
+      if (!info.preferredGender) {
+        info.preferredGender = ['Friends']
+      } else {
+        var found = info.preferredGender.indexOf(" ");
+        while (found !== -1) {
+          info.preferredGender.splice(found, 1);
+          found = info.preferredGender.indexOf(" ");
+        }
+      }
+
+      if(info.preferredLocationMI === 0) {
+        info.preferredLocationMI = 13000
+      }
+
+      User.updateUser(info.fbID.toString(), info.birthday, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.description, info.gender, info.preferredGender, function(error, users) {
+        // if there's an error => wrong JSON body
+        if(error) {
+          console.log(error)
+          var err = new Error("Error creating user and gender relationships, check JSON body format: " + error.message);
+          err.status = 500;
+          next(err);
+        }
+        else {
+          console.log("success", users)
+          res.json(users)
+        }
+      })
+    },
 
   // THIS SHOULD BE TRIGGERED AFTER USER HAS SEEN batches of 50 pictures
   findNewMatches: function(req, res, next) {
@@ -226,43 +235,6 @@ var UserController = {
       }
     });
   }
-
-  // DEPRECATED STUFF BELOW for MVP will be used when user settings is ENABLED.
-  // createGenderRel: function(req, res, next) {
-  //   // req.params.id get it from url params
-  //   console.log("PARAMS", req.params.id.toString())
-  //   User.createGenderRel(req.params.id.toString(), function(error, user) {
-  //       if(error) {
-  //       var err = new Error("Error retrieving user: " + error.message);
-  //       err.status = 500;
-  //       next(err);
-  //     } else {
-  //       res.json(user)
-  //     }
-  //   });
-  // },
-
-  // editUser: function(req, res, next) {
-  //   // res.body.alllll sorts of info from user
-  //   // info.gender is an array []
-  //   // info.preferredGender is an array []
-  //
-  //   res.req.body
-  //
-  //   // nodes: User, Picture, Gender
-  //
-  //   console.log("PARAMS", req.params.node.toString())
-  //   // console.log("BODY????", res.req.body)
-  //   User.findNodes(req.params.node.toString(), function(error, user) {
-  //     if(error) {
-  //       var err = new Error("Error retrieving nodes: " + error.message);
-  //       err.status = 500;
-  //       next(err);
-  //     } else {
-  //       res.json(user)
-  //     }
-  //   });
-  // }
 
 }
 

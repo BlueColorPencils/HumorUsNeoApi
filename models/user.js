@@ -21,6 +21,15 @@ User.findUser = function(fbID, callback) {
       var newgenderArr = userInfo.gender
       var tempArr = []
 
+      if(userInfo.preferredLocationMI === 13000) {
+        userInfo.preferredLocationMI = 0;
+      }
+
+      var indexFriends = newgenderArr.indexOf('Friends')
+      if (indexFriends !== -1) {
+          newGenderArr.splice(index, 1)
+      }
+
       newgenderArr.forEach( (gender)=> {
         tempArr.push(" ", gender)
       })
