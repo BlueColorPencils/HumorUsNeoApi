@@ -21,17 +21,19 @@ User.findUser = function(fbID, callback) {
       var newgenderArr = userInfo.gender
       var tempArr = []
 
-      for (var i = 0, i < newgenderArr.length, i++) {
-        tempArr.push(" ", newgenderArr(i))
-      }
+      newgenderArr.forEach( (gender)=> {
+        tempArr.push(" ", gender)
+      })
+
       userInfo.gender = tempArr
 
       var newgenderPrefArr = userInfo.preferredGender
       var tempArrTwo = []
 
-      for (var i = 0, i < newgenderPrefArr.length, i++) {
-        tempArr.push(" ", newgenderPrefArr(i))
-      }
+      newgenderPrefArr.forEach( (gender)=> {
+        tempArrTwo.push(" ", gender)
+      })
+
       userInfo.preferredGender = tempArrTwo
       console.log(userInfo)
 
