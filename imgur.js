@@ -30,22 +30,14 @@ module.exports = function (album,topic,top,time,page) {
     }).on('end', function() {
       var wholebody = JSON.parse(body);
       const dateAdded = Date.now()
-      console.log("wholebody", wholebody)
       async.forEach(wholebody.data, function(info, callback) {
-        console.log("in async")
         if (info.type !== 'image/gif' && info.type !== undefined && ((info.height/info.width) < 2.5) && info.is_album == false && ((info.width/info.height) < 1.8)) {
-          console.log("in2")
            var link = "https"+info.link.slice(4,info.link.length)
           Pic.createPictureNode(info.id, info.title, link, dateAdded, info.type, function(error, match) {
             if(error) {
-              // console.log("error", error)
-            //   // IF ERROR WE NEED TO TRY ANOTHER ROUTE??
-            //   var err = new Error("Error creating a new match. Tell Cristal to check her Cypher query." + error.message);
-            //   err.status = 500;
               next()
               // return callback()
             }
-            // console.log("match", match)
               return callback()
             })
         }
@@ -53,8 +45,6 @@ module.exports = function (album,topic,top,time,page) {
         // future. IF error, get from a different route.
         if (error) {
           console.log("error with adding pictures..")
-          // var err = new Error("No new nodes to add" + error.message);
-          // err.status = 500;
         } else {
           console.log("SUCCESS")
         }
