@@ -30,8 +30,11 @@ module.exports = function (album,topic,top,time,page) {
     }).on('end', function() {
       var wholebody = JSON.parse(body);
       const dateAdded = Date.now()
+      console.log("wholebody", wholebody)
       async.forEach(wholebody.data, function(info, callback) {
-        if (info.type !== 'image/gif' && info.type !== undefined && ((info.height/info.width) < 2.5) && info.is_album == 'false' && ((info.width/info.height) < 1.8)) {
+        console.log("in async")
+        if (info.type !== 'image/gif' && info.type !== undefined && ((info.height/info.width) < 2.5) && info.is_album == false && ((info.width/info.height) < 1.8)) {
+          console.log("in2")
            var link = "https"+info.link.slice(4,info.link.length)
           Pic.createPictureNode(info.id, info.title, link, dateAdded, info.type, function(error, match) {
             if(error) {
