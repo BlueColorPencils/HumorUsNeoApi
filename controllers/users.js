@@ -32,7 +32,6 @@ var UserController = {
         if (!info.age) {info.age = 18}
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
         if (!info.birthday) {info.birthday = 0}
-        if (!info.preferredLocationMI) {info.preferredLocationMI = 13000}
         if (!info.preferredAgeMin) {info.preferredAgeMin = info.age}
         if (!info.preferredAgeMax) {info.preferredAgeMax = 60}
         if (!info.lat) {info.lat = 0}
@@ -54,6 +53,7 @@ var UserController = {
           info.preferredGender = ['Friends']
         }
 
+        info.preferredLocationMI = 13000;
         req.information = info
         next()
 
@@ -66,7 +66,7 @@ var UserController = {
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
     const info = req.information
-    const date = Date.now() // in seconds
+    const date = Date.now().toString() // in seconds
 
     User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
       // if there's an error => wrong JSON body
@@ -180,7 +180,7 @@ var UserController = {
   // '/user/:fbID/newmatches' (2 of 2)
     const matchesArr = req.query
     console.log("MATCHES", matchesArr)
-    const date = Date.now() // in seconds
+    const date = Date.now().toString() // in seconds
 
     // I love you async package. <3
     async.each(matchesArr, function(info, callback) {
