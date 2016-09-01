@@ -43,10 +43,6 @@ User.findUser = function(fbID, callback) {
       var newgenderPrefArr = userInfo.preferredGender
       var tempArrTwo = []
 
-      var indexFriendsies = newgenderPrefArr.indexOf('Friends')
-      if (indexFriendsies !== -1) {
-          newgenderPrefArr.splice(indexFriendsies, 1)
-      }
       newgenderPrefArr.forEach( (gender)=> {
         tempArrTwo.push(" ", gender)
       })
