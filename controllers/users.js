@@ -28,7 +28,6 @@ var UserController = {
       // CREATE the user if error finding a user (user does NOT exist)
       console.log(error, user);
       if(error) {
-        var gender = info.gender.toLowerCase()
         if (!info.age) {info.age = 18}
         if (!info.photo) {info.photo = 'http://i.imgur.com/gvK46e9.jpg'}
         if (!info.birthday) {info.birthday = 0}
@@ -40,14 +39,12 @@ var UserController = {
         // if (!info.description) {info.description}
 
         if (info.gender) {
-          info.gender = [info.gender[0].toUpperCase() + info.gender.substring(1).toLowerCase()]
           info.gender.push('Friends')
         } else {
           info.gender = ['Friends']
         }
 
         if (info.preferredGender) {
-          info.preferredGender = [info.preferredGender[0].toUpperCase() + info.preferredGender.substring(1).toLowerCase()]
           info.preferredGender.push('Friends')
         } else {
           info.preferredGender = ['Friends']

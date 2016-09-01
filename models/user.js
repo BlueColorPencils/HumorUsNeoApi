@@ -10,9 +10,11 @@ var User = function(user) {
 };
 
 User.findUser = function(fbID, callback) {
+  console.log("in find User", fbID)
   session
   .run('MATCH (n:User {fbID: {fbID}}) RETURN n', {fbID: fbID})
   .then(function(result){
+    console.log("results", result)
     if (result.records.length === 0 ){
       callback("not found", undefined)
     } else {
@@ -44,7 +46,7 @@ User.findUser = function(fbID, callback) {
       })
 
       userInfo.preferredGender = tempArrTwo
-      console.log(userInfo)
+      console.log("creating user info", userInfo)
 
       callback(null, userInfo)
     }
