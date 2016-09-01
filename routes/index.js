@@ -29,7 +29,9 @@ router.post('/user/updateloc', UserController.updateLocation);
 router.post('/user/update', UserController.updateUser);
 
 // **BUTTON** (pictures) GET a single picture a user hasn't seen
-router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.imgur);
+router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findUnseenPicturesCount, PictureController.imgur);
+
+router.get('/user/:fbID/unseen/count', PictureController.findUnseenPicturesCount);
 
 // AFTER PICTURE SWIPE - (1 of 2) FIND seen pictures -> Triggers FIND new matches when picture count%50 is 0 -> GET NEW matches of user.CREATE matches RETURNS an integer of new matches
 router.get('/user/:fbID/newmatches', PictureController.findSeenPicturesCount,  UserController.findNewMatches, UserController.createNewMatches);

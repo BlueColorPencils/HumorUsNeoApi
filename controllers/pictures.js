@@ -43,35 +43,36 @@ var PicController = {
       if(error) {
         console.log("find unseen error", error)
         var err = new Error("Error retrieving unseen pictures:\n" + error.message);
-        // err.status = 500;
+        err.status = 500;
         next();
       } else {
         console.log("here's your picture", picture)
         res.json(picture)
-        req.unseencount = picture[0]
+        // req.unseencount = picture[0]
         next()
       }
     });
   },
 
-    // findUnseenPicturesCount: function(req, res, next) {
-    //   // '/picture/:fbID/unseencount'
-    //   var fbID = req.params.fbID
-    //   Pic.findUnseenPicturesCount(fbID, function(error, picture) {
-    //     // if error receiving picture
-    //     // ADD FUNCTIONALITY TO ADD MORE PICS FROM IMGUR
-    //     if(error) {
-    //       var err = new Error("Error retrieving unseen pictures:\n" + error.message);
-    //       // err.status = 500;
-    //       next();
-    //     } else {
-    //       console.log(picture)
-    //       res.json(picture)
-    //       req.unseencount = picture[0]
-    //       next()
-    //     }
-    //   });
-    // },
+    findUnseenPicturesCount: function(req, res, next) {
+      // '/picture/:fbID/unseencount'
+      var fbID = req.params.fbID
+      Pic.findUnseenPicturesCount(fbID, function(error, picture) {
+        // if error receiving picture
+        // ADD FUNCTIONALITY TO ADD MORE PICS FROM IMGUR
+        if(error) {
+          console.log("error")
+          var err = new Error("Error retrieving unseen pictures:\n" + error.message);
+          err.status = 500;
+          next(err);
+        } else {
+          console.log("unseen picture count", picture)
+          // res.json(picture)
+          req.unseencount = picture
+          next()
+        }
+      });
+    },
 
 
   findSeenPicturesCount: function(req, res, next) {
