@@ -10,14 +10,14 @@ var Pic = function(pic) {
 };
 
 Pic.findUnseenPictures = function (fbID, callback) {
+  console.log("HERE IS THE FBID", fbID)
   session
-  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID: fbID})
+  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID:fbID})
   .then(function(result){
-    console.log(result)
+    // console.log(result)
     var x = result.records.length
-    var y = Math.floor(Math.random() * (300-1))
+    var y = Math.floor(Math.random() * (299-1))
     var pictureArr = []
-    // result.records[y]._fields[0].properties
     console.log("find unseen pictures", result.records)
     pictureArr.push(x, result.records[y]._fields[0].properties)
     console.log("picture arr", pictureArr)
