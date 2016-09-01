@@ -11,19 +11,39 @@ var Pic = function(pic) {
 
 Pic.findUnseenPictures = function (fbID, callback) {
   session
-  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p LIMIT 10', {fbID: fbID})
+  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID: fbID})
   .then(function(result){
+    console.log(result)
     var x = result.records.length
-    var y = Math.floor(Math.random() * (x-1))
-    var pictureArr = result.records[y]._fields[0].properties
+    var y = Math.floor(Math.random() * (300-1))
+    var pictureArr = []
+    // result.records[y]._fields[0].properties
     console.log("find unseen pictures", result.records)
-    // pictureArr.push(x, result.records[y]._fields[0].properties)
+    pictureArr.push(x, result.records[y]._fields[0].properties)
+    console.log("picture arr", pictureArr)
     callback(null, pictureArr)
   })
   .catch(function(err){
     callback(err, undefined)
   })
 }
+
+// Pic.findUnseenPicturesCount = function (fbID, callback) {
+//   session
+//   .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN COUNT(*)', {fbID: fbID})
+//   .then(function(result){
+//     console.log("findunseen pic count", result)
+//     var x = result.records.length
+//     var y = Math.floor(Math.random() * (x-1))
+//     var pictureArr = result.records[y]._fields[0].properties
+//     console.log("find unseen pictures", result.records)
+//     // pictureArr.push(x, result.records[y]._fields[0].properties)
+//     callback(null, pictureArr)
+//   })
+//   .catch(function(err){
+//     callback(err, undefined)
+//   })
+// }
 
 Pic.findSeenPicturesCount = function (fbID, callback) {
   session
