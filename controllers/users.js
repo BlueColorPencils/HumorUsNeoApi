@@ -64,7 +64,7 @@ var UserController = {
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
     const info = req.information
-    const date = Date.now().toString().toString() // in seconds
+    const date = Date.now().toString() // in seconds
 
     User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
       // if there's an error => wrong JSON body
@@ -75,6 +75,26 @@ var UserController = {
       }
       else {
         res.json(users)
+      }
+    })
+  },
+
+  updateLocation: function(req, res, next) {
+    // '/user/updateLocation' POST (2 of 2)
+    const info = res.req.body
+    console.log("location", info)
+    var lat = Math.round(info.lat * 100) / 100
+    var long = Math.round(info.long * 100) / 100
+    console.log("latlong", lat, long)
+    User.updateLocation(info.fbID, lat, long, function(error, user) {
+      // if there's an error => wrong JSON body
+      if(error) {
+        var err = new Error("Error editing location: " + error.message);
+        err.status = 500;
+        next(err);
+      }
+      else {
+        res.json(user)
       }
     })
   },
@@ -178,7 +198,7 @@ var UserController = {
   // '/user/:fbID/newmatches' (2 of 2)
     const matchesArr = req.query
     console.log("MATCHES", matchesArr)
-    const date = Date.now().toString().toString() // in seconds
+    const date = Date.now().toString() // in seconds
 
     // I love you async package. <3
     async.each(matchesArr, function(info, callback) {

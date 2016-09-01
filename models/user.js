@@ -59,6 +59,22 @@ User.findUser = function(fbID, callback) {
   })
 }
 
+User.updateLocation = function(fbID, lat,long, callback) {
+  console.log("updateloc", fbID, lat, long)
+  // CREATES a new user with properties
+  // CREATES a relationship to gender and preferredGender
+  session
+  .run('MATCH (n:User {fbID:{fbID}}) SET n.lat={lat}, n.long={long} RETURN n', {fbID:fbID, lat:lat, long:long})
+
+  .then(function(result){
+    var userInfo = result.records[0]._fields[0].properties;
+    console.log(userInfo)
+    callback(null, userInfo)
+  })
+  .catch(function(err){
+    callback(err, undefined)
+  })
+}
 
 // this should ONLY happen AFTER fb Oauth IF user is NOT found.
 // should ever happen ONCE!!!!!!!!!

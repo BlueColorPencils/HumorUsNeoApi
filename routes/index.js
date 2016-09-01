@@ -10,7 +10,7 @@ var PictureController = require('../controllers/pictures');
 // });
 router.get('/', function(req, res, next) {
  res.json({"HI": "THERE"})
- }) 
+ })
 
 // **BUTTON** - (profile) FIND user info ONLY
 router.get('/user/:fbID/', UserController.findUser);
@@ -20,6 +20,9 @@ router.get('/imgur/:album/:topic/:top/:time/:page', PictureController.imgurs);
 // AFTER FB OAUTH - POST user info.. FIND or CREATE user
 // router.post('/user/', UserController.findOrCreateUser);
 router.post('/user/', UserController.findOrCreateUser, UserController.createUser);
+
+// Update location...
+router.post('/user/updateloc', UserController.updateLocation);
 
 
 // Update a user's info
