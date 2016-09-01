@@ -25,7 +25,7 @@ User.findUser = function(fbID, callback) {
       var tempArr = []
       console.log(newgenderArr)
 
-      if(userInfo.preferredLocationMI === 13000) {
+      if(userInfo.preferredLocationMI > 100) {
         userInfo.preferredLocationMI = 0;
       }
 
@@ -35,7 +35,8 @@ User.findUser = function(fbID, callback) {
       }
 
       newgenderArr.forEach( (gender)=> {
-        tempArr.push(" ", gender)
+        var genCap = gender.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();})
+        tempArr.push(" ", genCap)
       })
 
       userInfo.gender = tempArr

@@ -39,6 +39,7 @@ var UserController = {
         // if (!info.description) {info.description}
 
         if (info.gender) {
+          info.gender.forEach
           info.gender.push('Friends')
         } else {
           info.gender = ['Friends']
