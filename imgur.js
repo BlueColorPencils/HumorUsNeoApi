@@ -29,7 +29,7 @@ module.exports = function (album,topic,top,time,page) {
       body += data;
     }).on('end', function() {
       var wholebody = JSON.parse(body);
-      const dateAdded = Date.now()
+      const dateAdded = Date.now().toString()
       async.forEach(wholebody.data, function(info, callback) {
         if (info.type !== 'image/gif' && info.type !== undefined && ((info.height/info.width) < 2.5) && info.is_album == false && ((info.width/info.height) < 1.8)) {
            var link = "https"+info.link.slice(4,info.link.length)

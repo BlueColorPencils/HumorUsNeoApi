@@ -64,7 +64,7 @@ var UserController = {
   createUser: function(req, res, next) {
     // '/user/' POST (2 of 2)
     const info = req.information
-    const date = Date.now().toString() // in seconds
+    const date = Date.now().toString().toString() // in seconds
 
     User.createUser(info.fbID, info.name, info.birthday, info.age, info.photo, info.preferredLocationMI, info.preferredAgeMin, info.preferredAgeMax, info.lat, info.long, date, info.description, info.education, info.gender, info.preferredGender, function(error, users) {
       // if there's an error => wrong JSON body
@@ -178,7 +178,7 @@ var UserController = {
   // '/user/:fbID/newmatches' (2 of 2)
     const matchesArr = req.query
     console.log("MATCHES", matchesArr)
-    const date = Date.now().toString() // in seconds
+    const date = Date.now().toString().toString() // in seconds
 
     // I love you async package. <3
     async.each(matchesArr, function(info, callback) {

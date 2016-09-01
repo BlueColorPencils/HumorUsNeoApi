@@ -76,7 +76,7 @@ var PicController = {
     // '/picture/relationship'
     console.log("HUH", res.req.body)
     var info = res.req.body
-    var dateAdded = Date.now()
+    var dateAdded = Date.now().toString()
     if (info.relationship.toUpperCase() == 'LIKES' || info.relationship.toUpperCase() == 'DISLIKES') {
       Pic.createPictureRel(info.fbID, info.imgurID, info.relationship, dateAdded, function(error, picture) {
         // if error receiving picture
