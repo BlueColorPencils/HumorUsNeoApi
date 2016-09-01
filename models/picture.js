@@ -11,7 +11,7 @@ var Pic = function(pic) {
 
 Pic.findUnseenPictures = function (fbID, callback) {
   session
-  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p', {fbID: fbID})
+  .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN p LIMIT 1', {fbID: fbID})
   .then(function(result){
     // console.log(result.records)
     var x = result.records.length
