@@ -48,7 +48,6 @@ var PicController = {
       } else {
         console.log("here's your picture", picture)
         res.json(picture)
-        // req.unseencount = picture[0]
         next()
       }
     });
@@ -68,7 +67,7 @@ var PicController = {
         } else {
           console.log("unseen picture count", picture)
           // res.json(picture)
-          req.unseencount = picture
+          req.unseencount = picture[0]
           next()
         }
       });

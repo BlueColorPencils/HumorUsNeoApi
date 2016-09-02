@@ -16,6 +16,7 @@ router.get('/', function(req, res, next) {
 router.get('/user/:fbID/', UserController.findUser);
 
 router.get('/imgur/:album/:topic/:top/:time/:page', PictureController.imgurs);
+router.get('/imgur/', PictureController.imgur);
 
 // AFTER FB OAUTH - POST user info.. FIND or CREATE user
 // router.post('/user/', UserController.findOrCreateUser);
@@ -29,7 +30,10 @@ router.post('/user/updateloc', UserController.updateLocation);
 router.post('/user/update', UserController.updateUser);
 
 // **BUTTON** (pictures) GET a single picture a user hasn't seen
-router.get('/user/:fbID/unseen', PictureController.findUnseenPictures, PictureController.findUnseenPicturesCount, PictureController.imgur);
+router.post('/user/unseen', PictureController.findUnseenPictures)
+// router.get('/user/:fbID/unseen', PictureController.findUnseenPictures)
+ // PictureController.findUnseenPicturesCount)
+// , PictureController.imgur);
 
 router.get('/user/:fbID/unseen/count', PictureController.findUnseenPicturesCount);
 
