@@ -37,7 +37,7 @@ router.get('/user/:fbID/unseen', PictureController.findUnseenPictures)
 router.get('/user/:fbID/unseen/count', PictureController.findUnseenPicturesCount);
 
 // AFTER PICTURE SWIPE - (1 of 2) FIND seen pictures -> Triggers FIND new matches when picture count%50 is 0 -> GET NEW matches of user.CREATE matches RETURNS an integer of new matches
-router.get('/user/:fbID/newmatches', PictureController.findSeenPicturesCount,  UserController.findNewMatches, UserController.createNewMatches);
+router.get('/user/:fbID/newmatches', PictureController.findSeenPicturesCount,  UserController.findNewMatches, UserController.createNewMatches, PictureController.imgur);
 
 //setPictureLike
 // AFTER PICTURE SWIPE - (2 of 2) CREATE picture relationship -> FIND new picture to see -> calls Imgur after.

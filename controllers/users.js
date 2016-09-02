@@ -215,7 +215,8 @@ var UserController = {
         if (error) {
           err.status = 500;
         } else {
-          res.json({newmatches: matchesArr.length})
+          next()
+          // res.json({newmatches: matchesArr.length})
         }
       }
     )

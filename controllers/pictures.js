@@ -10,15 +10,17 @@ var PicController = {
 
   imgur: function(req, res, next) {
     // if there's less than 100 unseen pictures left, call imgurs api
-    if (req.unseencount < 300) {
-      Imgur('gallery', 'r/funny', 'top','week', '1')
-      Imgur('gallery', 'r/funny', 'top','week', '2')
-      Imgur('gallery', 'r/funny', 'top','week', '3')
-      Imgur('gallery', 'r/funny', 'top','week', '4')
-      Imgur('gallery', 'r/funny', 'top','week', '5')
-      Imgur('gallery', 'r/funny', 'top','week', '6')
+    // if (req.unseencount < 300) {
+    // if (req.unseencount < 300) {
+      var x= (Math.floor(Math.random() * (15-1))).toString()
+      Imgur('gallery', 'r/funny', 'top','week', x)
+      // Imgur('gallery', 'r/funny', 'top','week', '2')
+      // Imgur('gallery', 'r/funny', 'top','week', '3')
+      // Imgur('gallery', 'r/funny', 'top','week', '4')
+      // Imgur('gallery', 'r/funny', 'top','week', '5')
+      // Imgur('gallery', 'r/funny', 'top','week', '6')
       res.status(204).send({})
-    }
+    // }
   },
 
   imgurs: function(req, res, next) {
@@ -36,7 +38,7 @@ var PicController = {
   findUnseenPictures: function(req, res, next) {
     // '/picture/:fbID/unseen'
     var fbID = req.params.fbID.toString()
-    
+
     console.log("IN FIND UNSEEN PICS", fbID)
     Pic.findUnseenPictures(fbID, function(error, picture) {
       // if error receiving picture
