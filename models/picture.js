@@ -32,13 +32,13 @@ Pic.findUnseenPicturesCount = function (fbID, callback) {
   session
   .run('MATCH (n:User {fbID:{fbID}}) USING INDEX n:User(fbID) OPTIONAL MATCH (p:Picture) WHERE NOT (n)-[]->(p) RETURN COUNT(*)', {fbID: fbID})
   .then(function(result){
-    console.log("findunseen pic count", result.records[0]._fields[0].low)
     var pictureCount = result.records[0]._fields[0].low
     // var x = result.records.length
     // var y = Math.floor(Math.random() * (x-1))
     // var pictureArr = result.records[y]._fields[0].properties
     // console.log("find unseen pictures", result.records._fields[0]._fields)
     // pictureArr.push(x, result.records[y]._fields[0].properties)
+    console.log("findunseen pic count", result.records[0]._fields[0].low)
     callback(null, pictureCount)
   })
   .catch(function(err){
