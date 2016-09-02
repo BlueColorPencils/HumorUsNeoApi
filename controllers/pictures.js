@@ -36,6 +36,7 @@ var PicController = {
   findUnseenPictures: function(req, res, next) {
     // '/picture/:fbID/unseen'
     var fbID = req.params.fbID.toString()
+    
     console.log("IN FIND UNSEEN PICS", fbID)
     Pic.findUnseenPictures(fbID, function(error, picture) {
       // if error receiving picture

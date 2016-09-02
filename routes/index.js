@@ -30,8 +30,7 @@ router.post('/user/updateloc', UserController.updateLocation);
 router.post('/user/update', UserController.updateUser);
 
 // **BUTTON** (pictures) GET a single picture a user hasn't seen
-router.post('/user/unseen', PictureController.findUnseenPictures)
-// router.get('/user/:fbID/unseen', PictureController.findUnseenPictures)
+router.get('/user/:fbID/unseen', PictureController.findUnseenPictures)
  // PictureController.findUnseenPicturesCount)
 // , PictureController.imgur);
 
